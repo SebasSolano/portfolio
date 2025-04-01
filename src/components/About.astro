@@ -1,0 +1,367 @@
+---
+import ReactIcon from "./icons/React.astro";
+import AngularIcon from "./icons/Angular.astro";
+import VueIcon from "./icons/Vue.astro";
+import AstroIcon from "./icons/Astro.astro";
+
+import NodeIcon from "./icons/Node.astro";
+import DjangoIcon from "./icons/Django.astro";
+import LaravelIcon from "./icons/Laravel.astro";
+import QueryIcon from "./icons/Query.astro";
+
+import GitIcon from "./icons/Github.astro";
+import DockerIcon from "./icons/Docker.astro";
+import AwsIcon from "./icons/Aws.astro";
+import ScrumIcon from "./icons/Scrum.astro";
+
+import TsIcon from "./icons/Ts.astro";
+import JavaIcon from "./icons/Java.astro";
+import PythonIcon from "./icons/Python.astro";
+import PhpIcon from "./icons/Php.astro";
+
+import Books from "./icons/Books.astro";
+import Jobs from "./icons/Jobs.astro";
+import Settings from "./icons/Settings.astro";
+
+const skills = {
+  frontend: [
+    { name: "React", icon: "React", level: "Basic" },
+    { name: "Angular", icon: "Angular", level: "Intermediate" },
+    { name: "Vue", icon: "Vue", level: "Advanced" },
+    { name: "Astro", icon: "Astro", level: "Basic" },
+  ],
+  backend: [
+    { name: "Node.js", icon: "Node", level: "Intermediate" },
+    { name: "Django", icon: "Django", level: "Basic" },
+    { name: "Laravel", icon: "Laravel", level: "Basic" },
+    { name: "SQL/NoSQL", icon: "Query", level: "Advanced" },
+  ],
+  tools: [
+    { name: "Git", icon: "Git", level: "Intermediate" },
+    { name: "Docker", icon: "Docker", level: "Basic" },
+    { name: "AWS", icon: "AWS", level: "Basic" },
+    { name: "Agile/Scrum", icon: "Scrum", level: "Intermediate" },
+  ],
+  languages: [
+    { name: "JavaScript/TypeScript", icon: "Ts", level: "Intermediate" },
+    { name: "Java", icon: "Java", level: "Intermediate" },
+    { name: "Python", icon: "Python", level: "Basic" },
+    { name: "Php", icon: "Php", level: "Advanced" },
+  ],
+};
+
+const experience = [
+  {
+    role: "Systems Engineer Trainee",
+    company: "Alcaldía de Montería",
+    period: "Feb 2024 - May 2024",
+    description: [
+      "Development of software solutions to improve administrative processes.",
+      "Participation in technical processes such as hardware maintenance and repair.",
+      "Collaboration in projects of process automation projects.",
+    ],
+  },
+];
+
+const studies = [
+  {
+    title: "Systems Engineer",
+    site: "Universidad del Sinu",
+    date: "Graduation December 2024",
+  },
+  {
+    title:
+      "Reconocimiento XXV encuentro nacional y XIX internacional de semilleros de investigación fundación REDCOLSI ",
+    site: "REDCOLSI",
+    date: "October 2022",
+  },
+  {
+    title:
+      "Reconocimiento XXII encuentro nacional y XVI internacional de semilleros de investigación fundación REDCOLSI ",
+    site: "REDCOLSI",
+    date: "October 2019",
+  },
+  {
+    title: "Reconocimiento por participar en la Hackathon Montería ",
+    site: "Camara de Comercio",
+    date: "August 2019",
+  },
+  {
+    title:
+      "Reconocimiento por participar al Concurso Pitch de 4ta revolución industrial ",
+    site: "UPB",
+    date: "September 2019",
+  },
+];
+---
+
+<section id="about" class="py-20 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div
+      class="text-center mb-12 transition-all duration-600 hover-lift cursor-pointer"
+    >
+    <h2 class="text-3xl font-bold text-gray-900">About Me</h2>
+      <div class="w-48 h-1 bg-primary-500 mx-auto rounded-full"></div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-12">
+      <div class="slide-up">
+        <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+          I am a systems engineer passionate about creating innovative
+          technology solutions. With a strong foundation from Universidad del
+          Sinu and hands-on experience in diverse projects, I specialize in
+          developing scalable web applications. My approach combines technical
+          expertise with a deep understanding of business needs, ensuring that
+          every solution delivers real value.
+        </p>
+        <div class="space-y-6">
+          <div
+            class="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          >
+            <h3
+              class="font-semibold text-gray-900 mb-4 flex items-center gap-2"
+            >
+              <span class="text-primary-500">
+                <Books />
+              </span>Education & degrees
+            </h3>
+            <div class="space-y-3">
+              {
+                studies.map((item) => (
+                  <div class="space-y-3">
+                    <p class="font-medium text-gray-800">{item.title}</p>
+                    <p class="text-primary-600">{item.site} <span class="text-sm text-gray-500">{item.date}</span></p>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div
+            class="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          >
+            <h3
+              class="font-semibold text-gray-900 mb-4 flex items-center gap-2"
+            >
+              <span class="text-primary-500">
+                <Jobs />
+              </span>Experience
+            </h3>
+            <div class="space-y-4">
+              {
+                experience.map((item) => (
+                  <div class="border-l-2 border-primary-200 pl-4">
+                    <p class="font-medium text-gray-800">{item.role}</p>
+                    <p class="text-primary-600">{item.company}</p>
+                    <p class="text-sm text-gray-500">{item.period}</p>
+                    <ul class="list-disc text-gray-600 mt-1">
+                      {item.description.map((item) => (
+                        <li class="ml-5">{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-8 slide-up">
+        <h3 class="font-semibold text-gray-900 text-xl mb-6">
+          Technical Expertise
+        </h3>
+        <div class="space-y-8">
+          <div>
+            <h4 class="font-medium text-gray-700 mb-4 flex items-center gap-2">
+              <span class="text-primary-500"><Settings/></span> Frontend Development
+            </h4>
+            <div class="grid grid-cols-2 gap-4">
+              {
+                skills.frontend.map((skill) => (
+                  <div class="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-lg">
+                        {skill.icon === "React" ? (
+                          <ReactIcon />
+                        ) : skill.icon === "Angular" ? (
+                          <AngularIcon />
+                        ) : skill.icon === "Vue" ? (
+                          <VueIcon />
+                        ) : skill.icon === "Astro" ? (
+                          <AstroIcon />
+                        ) : (
+                          skill.icon
+                        )}
+                      </span>
+                      <span class="text-gray-700 font-medium">
+                        {skill.name}
+                      </span>
+                    </div>
+                    <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class={`h-full bg-primary-500 rounded-full ${
+                          skill.level === "Expert"
+                            ? "w-full"
+                            : skill.level === "Advanced"
+                              ? "w-[75%]"
+                              : skill.level === "Intermediate"
+                                ? "w-[50%]"
+                                : "w-[25%]"
+                        }`}
+                      />
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">
+                      {skill.level}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-700 mb-4 flex items-center gap-2">
+              <span class="text-primary-500"><Settings/></span> Backend Development
+            </h4>
+            <div class="grid grid-cols-2 gap-4">
+              {
+                skills.backend.map((skill) => (
+                  <div class="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-lg">
+                        {" "}
+                        {skill.icon === "Node" ? (
+                          <NodeIcon />
+                        ) : skill.icon === "Django" ? (
+                          <DjangoIcon />
+                        ) : skill.icon === "Laravel" ? (
+                          <LaravelIcon />
+                        ) : skill.icon === "Query" ? (
+                          <QueryIcon />
+                        ) : (
+                          skill.icon
+                        )}
+                      </span>
+                      <span class="text-gray-700 font-medium">
+                        {skill.name}
+                      </span>
+                    </div>
+                    <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class={`h-full bg-primary-500 rounded-full ${
+                          skill.level === "Expert"
+                            ? "w-full"
+                            : skill.level === "Advanced"
+                              ? "w-[75%]"
+                              : skill.level === "Intermediate"
+                                ? "w-[50%]"
+                                : "w-[25%]"
+                        }`}
+                      />
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">
+                      {skill.level}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-700 mb-4 flex items-center gap-2">
+              <span class="text-primary-500"><Settings/></span> Languages Development
+            </h4>
+            <div class="grid grid-cols-2 gap-4">
+              {
+                skills.languages.map((skill) => (
+                  <div class="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-lg">
+                        {" "}
+                        {skill.icon === "Ts" ? (
+                          <TsIcon />
+                        ) : skill.icon === "Java" ? (
+                          <JavaIcon />
+                        ) : skill.icon === "Python" ? (
+                          <PythonIcon />
+                        ) : skill.icon === "Php" ? (
+                          <PhpIcon />
+                        ) : (
+                          skill.icon
+                        )}
+                      </span>
+                      <span class="text-gray-700 font-medium">
+                        {skill.name}
+                      </span>
+                    </div>
+                    <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class={`h-full bg-primary-500 rounded-full ${
+                          skill.level === "Expert"
+                            ? "w-full"
+                            : skill.level === "Advanced"
+                              ? "w-[75%]"
+                              : skill.level === "Intermediate"
+                                ? "w-[50%]"
+                                : "w-[25%]"
+                        }`}
+                      />
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">
+                      {skill.level}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-700 mb-4 flex items-center gap-2">
+              <span class="text-primary-500"><Settings/></span> Tools Development
+            </h4>
+            <div class="grid grid-cols-2 gap-4">
+              {
+                skills.tools.map((skill) => (
+                  <div class="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="text-lg">
+                        {" "}
+                        {skill.icon === "Git" ? (
+                          <GitIcon />
+                        ) : skill.icon === "Docker" ? (
+                          <DockerIcon />
+                        ) : skill.icon === "AWS" ? (
+                          <AwsIcon />
+                        ) : skill.icon === "Scrum" ? (
+                          <ScrumIcon />
+                        ) : (
+                          skill.icon
+                        )}
+                      </span>
+                      <span class="text-gray-700 font-medium">
+                        {skill.name}
+                      </span>
+                    </div>
+                    <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        class={`h-full bg-primary-500 rounded-full ${
+                          skill.level === "Expert"
+                            ? "w-full"
+                            : skill.level === "Advanced"
+                              ? "w-[75%]"
+                              : skill.level === "Intermediate"
+                                ? "w-[50%]"
+                                : "w-[25%]"
+                        }`}
+                      />
+                    </div>
+                    <span class="text-xs text-gray-500 mt-1 block">
+                      {skill.level}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
