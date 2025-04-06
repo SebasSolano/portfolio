@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AImage: typeof import('ant-design-vue/es')['Image']
     AImagePreviewGroup: typeof import('ant-design-vue/es')['ImagePreviewGroup']
+    Label: typeof import('./src/components/icons/Label.vue')['default']
     Projects: typeof import('./src/components/Projects.vue')['default']
     ThemeSwitcher: typeof import('./src/components/ThemeSwitcher.vue')['default']
   }

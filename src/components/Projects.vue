@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from "vue";
+  import Label from "./icons/Label.vue"
 
   const visibleMap = ref({});
 
@@ -170,11 +171,8 @@
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div v-for="project in projects" :key="project.title" class="relative">
-          <div
-            v-if="project.title === 'GradeGain'"
-            class="absolute z-10 -top-6 bg-primary-600/30 backdrop-blur-lg rounded-xl p-2 shadow-md border border-primary-400/20 cursor-pointer"
-          >
-            <span>Main Project</span>
+          <div v-if="project.title === 'GradeGain'" class="">
+            <Label/>
           </div>
 
           <div
@@ -190,7 +188,7 @@
               <a-image
                 v-else
                 :preview="{ visible: false }"
-                class="w-96 max-h-52  "
+                class="w-96 max-h-52"
                 :src="project.image[0]"
                 @click="toggleVisible(project.title, true)"
               />
@@ -300,7 +298,9 @@
                     </svg>
                   </div>
                 </div>
-                <span class="p-2 bg-primary-200 rounded-xl cursor-pointer text-sm text-primary-900">
+                <span
+                  class="p-2 bg-primary-200 rounded-xl cursor-pointer text-sm text-primary-900"
+                >
                   {{ project.type }}
                 </span>
               </div>
