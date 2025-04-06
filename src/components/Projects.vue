@@ -13,7 +13,7 @@
     const paths = [];
 
     for (let i = 1; i <= count; i++) {
-      paths.push(`/src/assets/img/${formattedName}/image_${i}.jpeg`);
+      paths.push(`/img/${formattedName}/image_${i}.jpeg`);
     }
 
     return paths;
@@ -37,7 +37,7 @@
       title: "Dueword",
       description:
         "Dueword is an exciting real-time web game where you translate words in 60 seconds and use strategic cards to win or annoy your opponents.",
-      imageCount: 0,
+      imageCount: 1,
       technologies: ["NodeJS", "TypeScript", "Socket.io"],
       link: "",
       github: "",
@@ -179,14 +179,7 @@
             class="flex flex-col justify-between bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow hover-lift min-h-[550px] max-h-[550px]"
           >
             <div class="relative flex items-center justify-center">
-              <div
-                v-if="project.image === null && !project.finished"
-                class="w-full h-48 flex items-center justify-center bg-gray-200 text-xl font-semibold text-gray-900"
-              >
-                In development
-              </div>
               <a-image
-                v-else
                 :preview="{ visible: false }"
                 class="w-96 max-h-52"
                 :src="project.image[0]"
