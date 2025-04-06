@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from "vue";
-  import Label from "./icons/Label.vue"
+  import Label from "./icons/Label.vue";
 
   const visibleMap = ref({});
 
@@ -38,7 +38,7 @@
       description:
         "Dueword is an exciting real-time web game where you translate words in 60 seconds and use strategic cards to win or annoy your opponents.",
       imageCount: 1,
-      technologies: ["NodeJS", "TypeScript", "Socket.io"],
+      technologies: ["Vue", "NodeJS", "TypeScript", "Socket.io"],
       link: "",
       github: "",
       category: "Games",
@@ -50,7 +50,7 @@
       title: "User management API",
       description:
         "This is a simple api where you manage user registration, login and CRUD.",
-      imageCount: 1,
+      imageCount: 3,
       technologies: ["NodeJS", "TypeScript", "MongoDB"],
       link: "",
       github: "https://github.com/SebasSolano/api-node-ts-mdb",
@@ -63,7 +63,7 @@
       title: "ToDo application with Drag and Drop",
       description:
         "This is a ToDo app with Laravel 10 and Vue.js that allows you to manage and move tasks with Trello style from registration to status changes.",
-      imageCount: 1,
+      imageCount: 7,
       technologies: ["Laravel", "Php", "Vue", "JavaScript", "Vuex", "MySQL"],
       link: "https://to-do-peach-nu.vercel.app",
       github: "https://github.com/SebasSolano/ToDo-vue-laravel",
@@ -89,7 +89,7 @@
       title: "Barroca Register",
       description:
         "A web application for hotels that streamlines check-in and minimizes guest wait times.",
-      imageCount: 1,
+      imageCount: 0,
       technologies: ["Vue", "JavaScript"],
       link: "https://baroca-front.vercel.app",
       github: "https://github.com/SebasSolano/baroca-front",
@@ -101,7 +101,7 @@
     {
       title: "Barroca Register API",
       description: "This is the api of de Barroca Register.",
-      imageCount: 1,
+      imageCount: 0,
       technologies: ["NodeJS", "Express", "JavaScript", "PostgreSQL"],
       link: "",
       github: "https://github.com/carlostirado23/Preregistro",
@@ -114,7 +114,7 @@
       title: "BodyFit App",
       description:
         "A mobile-optimized web app that helps you manage your weight, suggests personalized routines and informs you with weekly news from the world of fitness",
-      imageCount: 1,
+      imageCount: 0,
       technologies: ["Vue", "Firebase", "JavaScript", "TypeScript"],
       link: "",
       github: "https://github.com/SebasSolano/bodyfit",
@@ -140,7 +140,7 @@
       title: "VeterinariaAPP",
       description:
         "This is a web application adapted to mobile, for the complete management of the animals of a veterinary. ",
-      imageCount: 1,
+      imageCount: 0,
       technologies: ["Php", "MySQL"],
       link: "",
       github: "https://github.com/SebasSolano/veterinariaAPP",
@@ -172,7 +172,7 @@
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div v-for="project in projects" :key="project.title" class="relative">
           <div v-if="project.title === 'GradeGain'" class="">
-            <Label/>
+            <Label />
           </div>
 
           <div
@@ -181,7 +181,7 @@
             <div class="relative flex items-center justify-center">
               <a-image
                 :preview="{ visible: false }"
-                class="w-96 max-h-52"
+                class="w-96 min-h-52 max-h-52"
                 :src="project.image[0]"
                 @click="toggleVisible(project.title, true)"
               />
