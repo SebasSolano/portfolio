@@ -206,7 +206,7 @@ export default function About() {
                         </div>
 
                         {/* Stat 2: Top Right (Higher) */}
-                        <div className="stat-item absolute -top-12 right-10 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                        <div className="stat-item absolute -top-2 right-20 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
                             <div className="flex flex-col gap-2">
                                 <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
                                     {stats[1].value}
@@ -218,7 +218,7 @@ export default function About() {
                         </div>
 
                         {/* Stat 3: Bottom Left (Shifted Left) */}
-                        <div className="stat-item absolute bottom-20 -left-12 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                        <div className="stat-item absolute bottom-40 -left-2 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
                             <div className="flex flex-col gap-2">
                                 <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
                                     {stats[2].value}
@@ -230,7 +230,7 @@ export default function About() {
                         </div>
 
                         {/* Stat 4: Bottom Center */}
-                        <div className="stat-item absolute bottom-0 left-1/2 -translate-x-1/2 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                        <div className="stat-item absolute bottom-20 left-1/2 -translate-x-1/2 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
                             <div className="flex flex-col gap-2">
                                 <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
                                     {stats[3].value}
@@ -243,7 +243,7 @@ export default function About() {
                     </div>
 
                     {/* Mobile/Tablet Fallback for Stats */}
-                    <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="lg:hidden grid grid-cols-1 xl:grid-cols-2 gap-5">
                          {stats.map((stat) => (
                             <div
                                 key={stat.label}
