@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <rect width="800" height="450" fill="#0a0a0a"/>
+  <rect x="40" y="40" width="720" height="370" rx="16" fill="#111" stroke="#7D5BA6" stroke-opacity="0.2"/>
+  <text x="400" y="225" text-anchor="middle" fill="#7D5BA6" font-family="Inter, sans-serif" font-size="24" opacity="0.6">CRM Dashboard Preview</text>
+</svg>

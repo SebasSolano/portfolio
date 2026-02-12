@@ -1,0 +1,23 @@
+{
+    "title": "Cattle Industry CRM",
+    "description": "A comprehensive CRM platform designed for the cattle industry, featuring herd management, financial tracking, sales pipelines, and real-time analytics dashboards. Built with automated deployment and Scrum-driven iteration cycles.",
+    "date": "2025",
+    "client": "OddiSoluciones",
+    "tags": [
+        "Django",
+        "React",
+        "PostgreSQL",
+        "Docker",
+        "Scrum"
+    ],
+    "media": [
+        {
+            "type": "image",
+            "src": "/projects/crm-dashboard.png",
+            "alt": "CRM Dashboard showing herd analytics"
+        }
+    ],
+    "demoUrl": "https://example.com",
+    "repoUrl": "https://github.com",
+    "featured": true
+}

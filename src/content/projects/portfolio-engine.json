@@ -1,0 +1,22 @@
+{
+    "title": "Portfolio Engine",
+    "description": "High-performance portfolio system built with Astro, React, and Three.js featuring custom cursor physics, GSAP-powered animations, smooth scrolling with Lenis, and an interactive 3D particle system background.",
+    "date": "2025",
+    "client": "Personal",
+    "tags": [
+        "Astro",
+        "React",
+        "Three.js",
+        "GSAP",
+        "TailwindCSS"
+    ],
+    "media": [
+        {
+            "type": "image",
+            "src": "/projects/portfolio-preview.png",
+            "alt": "Portfolio website hero section"
+        }
+    ],
+    "repoUrl": "https://github.com",
+    "featured": false
+}

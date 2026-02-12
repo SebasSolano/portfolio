@@ -1,0 +1,47 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/global.css";
+
+// React components (client:load for immediate, client:visible for lazy)
+import Navbar from "../components/Navbar";
+import CustomCursor from "../components/CustomCursor";
+import Hero from "../components/Hero";
+import About from "../components/About";
+import Experience from "../components/Experience";
+import Projects from "../components/Projects";
+import TechStack from "../components/TechStack";
+import Contact from "../components/Contact";
+import Footer from "../components/Footer";
+---
+
+<Layout>
+    <!-- Custom Cursor -->
+    <CustomCursor client:load />
+
+    <!-- Navigation -->
+    <Navbar client:load />
+
+    <!-- Main Content -->
+    <main class="w-full">
+        <!-- Hero Section -->
+        <Hero client:load />
+
+        <!-- About Section -->
+        <About client:visible />
+
+        <!-- Experience Timeline -->
+        <Experience client:visible />
+
+        <!-- Projects Showcase -->
+        <Projects client:visible />
+
+        <!-- Tech Stack Marquee -->
+        <TechStack client:visible />
+
+        <!-- Contact Form -->
+        <Contact client:visible />
+    </main>
+
+    <!-- Footer -->
+    <Footer client:visible />
+</Layout>

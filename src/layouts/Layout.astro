@@ -1,0 +1,105 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+const {
+  title = "Sebastian Solano — Systems Engineer & Creative Developer",
+  description = "Full Stack Developer specializing in Process Automation, Technical Leadership, and Scrum. Building scalable solutions with Django, React, Node.js, and more.",
+  image = "/og-image.png",
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en" class="lenis">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- JSON-LD Person Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Sebastian Andres Solano Madera",
+      "jobTitle": "Systems Engineer",
+      "url": "https://sebastiansolano.dev",
+      "email": "sebaxsolanom@gmail.com",
+      "telephone": "+573137874304",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Montería",
+        "addressCountry": "CO"
+      },
+      "alumniOf": {
+        "@type": "EducationOrganization",
+        "name": "Universidad del Sinú"
+      },
+      "knowsAbout": [
+        "Django", "Laravel", "React", "Angular", "Node.js",
+        "Vue.js", "Nuxt", "NextJS", "Flutter", "Java",
+        "Python", "PHP", "Dart", "PostgreSQL", "MongoDB"
+      ],
+      "sameAs": []
+    })} />
+  </head>
+
+  <body class="bg-bg text-primary overflow-x-hidden">
+    <slot />
+
+    <!-- Lenis Smooth Scroll Init -->
+    <script>
+      import Lenis from "lenis";
+
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        touchMultiplier: 2,
+        infinite: false,
+      });
+
+      function raf(time: number) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+
+      requestAnimationFrame(raf);
+
+      // Expose globally for GSAP ScrollTrigger sync
+      (window as any).__lenis = lenis;
+    </script>
+  </body>
+</html>

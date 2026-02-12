@@ -1,0 +1,20 @@
+{
+    "title": "Administrative Process Optimizer",
+    "description": "Software solution designed for the Mayor's Office of Montería to streamline administrative workflows, digitize paper-based processes, and provide real-time operational dashboards for government departments.",
+    "date": "2024",
+    "client": "Mayor's Office of Montería",
+    "tags": [
+        "Laravel",
+        "Vue.js",
+        "Oracle",
+        "Government"
+    ],
+    "media": [
+        {
+            "type": "image",
+            "src": "/projects/admin-system.png",
+            "alt": "Administrative workflow dashboard"
+        }
+    ],
+    "featured": true
+}
