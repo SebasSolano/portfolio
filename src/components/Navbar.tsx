@@ -47,14 +47,9 @@ export default function Navbar() {
         return () => observer.disconnect();
     }, []);
 
-    // Pop animation on scroll
+    // Pop animation on scroll - REPLACED with CSS transitions for performance
     useEffect(() => {
-        if (scrolled && navRef.current) {
-            gsap.fromTo(navRef.current,
-                { y: 50, scale: 0.9, opacity: 0 },
-                { y: 0, scale: 1, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.7)" }
-            );
-        }
+        // No-op: Animation handled by CSS classes for 60fps performance
     }, [scrolled]);
 
     // GSAP mobile menu timeline
@@ -147,10 +142,11 @@ export default function Navbar() {
             {/* Desktop Nav */}
             <nav
                 ref={navRef}
-                className={`fixed top-5 left-5 right-5 z-100 rounded-2xl flex items-center justify-center transition-all duration-500 ${scrolled
-                    ? "glass border-border py-4"
-                    : "bg-transparent border border-transparent py-5"
-                    }`}
+                className={`fixed top-5 left-5 right-5 z-100 rounded-2xl flex items-center justify-center transition-all duration-500 ease-out transform-gpu ${
+                    scrolled
+                    ? "glass border-border py-4 shadow-lg shadow-accent/5 backdrop-blur-xl translate-y-0 scale-100 opacity-100"
+                    : "bg-transparent border border-transparent py-5 translate-y-0 scale-100 opacity-100"
+                }`}
             >
                 <div className="w-full max-w-7xl px-6 md:px-8 flex items-center justify-between">
                     {/* Logo */}

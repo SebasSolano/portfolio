@@ -150,30 +150,41 @@ export default function About() {
                             className="space-y-6 text-primary/70 text-base md:text-lg leading-[1.8]"
                         >
                             <p className="about-para opacity-0">
-                                I'm Sebastian Solano, a{" "}
-                                <span className="text-primary font-medium">
-                                    Systems Engineer
-                                </span>{" "}
-                                — I specialize in
-                                full-stack development and process automation, merging
-                                technical depth with creative problem-solving.
+                                <span className="font-bold text-primary">The digital world is chaotic.</span>{" "}
+                                Bloated systems, slow interfaces, and confusing workflows aren't just annoying—they're
+                                costing businesses millions in lost productivity and user frustration. In an era where
+                                speed is currency, bad software is a liability you can't afford.
                             </p>
                             <p className="about-para opacity-0">
-                                My approach combines{" "}
-                                <span className="text-primary font-medium">
-                                    Scrum methodologies
-                                </span>{" "}
-                                with a passion for clean, scalable architecture. From
-                                designing CRM platforms for the cattle industry to
-                                optimizing government administrative workflows, I thrive on
-                                turning complex challenges into elegant software solutions.
+                                But it doesn't have to be this way. I don't just write code; I engineer{" "}
+                                <span className="text-primary font-medium">clarity out of complexity</span>.
+                                By merging rigorous Scrum methodologies with elegant full-stack architecture, I transform
+                                tangled processes into streamlined, high-performance engines that drive real growth.
                             </p>
                             <p className="about-para opacity-0">
-                                I believe technology should feel{" "}
-                                <span className="text-accent font-medium">invisible</span>
-                                —working seamlessly while empowering the people who use it.
-                                Every line of code I write serves that principle.
+                                Whether it's a mission-critical CRM or a government-scale platform, I deliver solutions that are
+                                <span className="text-accent font-medium"> invisible yet powerful</span>.
+                                Stop settling for "good enough" software. Let's build the competitive advantage your business deserves.
                             </p>
+
+                            <div className="pt-4 about-para opacity-0">
+                                <a
+                                    href="#projects"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        const el = document.querySelector("#projects");
+                                        const lenis = (window as any).__lenis;
+                                        lenis?.scrollTo(el, { offset: -80, duration: 1.2 });
+                                    }}
+                                    className="relative inline-flex items-center justify-center px-8 py-4 overflow-hidden font-mono font-medium tracking-tighter text-white bg-accent rounded-lg group cursor-pointer shadow-lg shadow-accent/20 hover:shadow-accent/40 transition-all duration-300 hover:scale-105"
+                                >
+                                    <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                                    <span className="relative flex items-center gap-2">
+                                        View My Work
+                                        <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                    </span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 

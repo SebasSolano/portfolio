@@ -17,10 +17,13 @@ export default function Contact() {
         message: "",
     });
 
+    const slotRef = useRef<HTMLSpanElement>(null);
+
     useEffect(() => {
         const ctx = gsap.context(() => {
-            // Heading
-            gsap.fromTo(
+            // Initial reveal animation (standard)
+            const revealTl = gsap.timeline();
+            revealTl.fromTo(
                 headingRef.current,
                 { y: 80, opacity: 0, clipPath: "inset(100% 0% 0% 0%)" },
                 {
@@ -29,20 +32,12 @@ export default function Contact() {
                     clipPath: "inset(0% 0% 0% 0%)",
                     duration: 1,
                     ease: "power3.out",
-                    scrollTrigger: {
-                        trigger: headingRef.current,
-                        start: "top 85%",
-                        end: "top 15%",
-                        toggleActions: "play reverse play reverse",
-                    },
                 }
             );
 
-            // Content reveals
-            const elements =
-                sectionRef.current?.querySelectorAll(".contact-reveal");
+            const elements = sectionRef.current?.querySelectorAll(".contact-reveal");
             if (elements) {
-                gsap.fromTo(
+                revealTl.fromTo(
                     elements,
                     { y: 50, opacity: 0, filter: "blur(6px)" },
                     {
@@ -52,15 +47,69 @@ export default function Contact() {
                         duration: 0.8,
                         stagger: 0.1,
                         ease: "power3.out",
-                        scrollTrigger: {
-                            trigger: sectionRef.current,
-                            start: "top 70%",
-                            end: "bottom 0%", // Adjusted to keep visible longer
-                            toggleActions: "play none none reverse", // Changed to not reverse immediately
-                        },
-                    }
+                    },
+                    "-=0.5"
                 );
             }
+
+            // Scroll-triggered "Outro" Sequence
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top", 
+                    end: "+=2500", 
+                    pin: true,
+                    scrub: 1,
+                    anticipatePin: 1,
+                }
+            });
+
+            // 1. Fade out everything except H2
+            tl.to(elements || [], {
+                opacity: 0,
+                y: -30,
+                filter: "blur(10px)",
+                stagger: 0.05,
+                duration: 2
+            });
+
+            // 2. Move H2 to center (calculated dynamically)
+            tl.to(headingRef.current, {
+                x: () => {
+                    if (!headingRef.current) return 0;
+                    const rect = headingRef.current.getBoundingClientRect();
+                    const viewCenter = window.innerWidth / 2;
+                    const elCenter = rect.left + rect.width / 2;
+                    return viewCenter - elCenter;
+                },
+                y: () => {
+                     if (!headingRef.current) return 0;
+                     const rect = headingRef.current.getBoundingClientRect();
+                     const viewCenter = window.innerHeight / 2;
+                     const elCenter = rect.top + rect.height / 2;
+                     return viewCenter - elCenter;
+                },
+                scale: 1.3,
+                duration: 4,
+                ease: "power2.inOut"
+            }, "-=1"); // Overlap slightly
+
+            // 3. Pause (hold position)
+            tl.to({}, { duration: 2 });
+
+            // 4. Slot Machine Animation (Rolling Text)
+            // We animate the 'y' of the span to show different words
+            if (slotRef.current) {
+                tl.to(slotRef.current, {
+                    y: "-75%", // Move up to show the last item (assuming 4 items)
+                    duration: 4,
+                    ease: "elastic.out(1, 0.5)"
+                });
+            }
+            
+            // Final pause
+            tl.to({}, { duration: 1 });
+
         }, sectionRef);
 
         return () => ctx.revert();
@@ -102,11 +151,21 @@ export default function Contact() {
                     <div className="lg:col-span-6 xl:col-span-5">
                         <h2
                             ref={headingRef}
-                            className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-8 opacity-0 leading-[1.1]"
+                            className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-8 opacity-0 leading-[1.1] relative z-20"
                         >
                             Let's build
                             <br />
-                            <span className="text-gradient">something together.</span>
+                            <span className="text-gradient block h-[1.1em] overflow-hidden">
+                                <span ref={slotRef} className="block">
+                                    something together.
+                                    <br />
+                                    the future.
+                                    <br />
+                                    your vision.
+                                    <br />
+                                    a legacy.
+                                </span>
+                            </span>
                         </h2>
 
                         <p className="contact-reveal text-muted text-lg mb-16 max-w-xl opacity-0">
