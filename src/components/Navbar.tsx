@@ -16,7 +16,10 @@ const NAV_LINKS = [
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [activeSection, setActiveSection] = useState("hero");
+
     const menuRef = useRef<HTMLDivElement>(null);
+    const navRef = useRef<HTMLElement>(null);
     const tl = useRef<gsap.core.Timeline | null>(null);
 
     useEffect(() => {
@@ -24,6 +27,35 @@ export default function Navbar() {
         window.addEventListener("scroll", onScroll, { passive: true });
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
+
+    // Intersection Observer to track active section
+    useEffect(() => {
+        const sections = document.querySelectorAll("section[id]");
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(entry.target.id);
+                    }
+                });
+            },
+            { threshold: 0.3 } // 30% visibility to trigger
+        );
+
+        sections.forEach((section) => observer.observe(section));
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Pop animation on scroll
+    useEffect(() => {
+        if (scrolled && navRef.current) {
+            gsap.fromTo(navRef.current,
+                { y: 50, scale: 0.9, opacity: 0 },
+                { y: 0, scale: 1, opacity: 1, duration: 0.8, ease: "elastic.out(1, 0.7)" }
+            );
+        }
+    }, [scrolled]);
 
     // GSAP mobile menu timeline
     useEffect(() => {
@@ -75,10 +107,46 @@ export default function Navbar() {
         }
     };
 
+    // Helper to determine if a letter should be highlighted
+    const getLogoLetterClass = (letterIndex: number, targetSection: string) => {
+        // Mapping:
+        // S (0) -> hero
+        // o (1) -> about
+        // l (2) -> experience
+        // a (3) -> projects
+        // n (4) -> techstack (assuming techstack section has id 'techstack' or similar, check logic)
+        // o (5) -> contact
+        
+        // Let's refine the mapping based on known sections:
+        // Hero -> S
+        // About -> o
+        // Experience -> l
+        // Projects -> a
+        // TechStack -> n (Currently TechStack component doesn't have an ID in previous Read, need to ensure it does)
+        // Contact -> o
+
+        const sectionMap: Record<string, number> = {
+            "hero": 0,
+            "about": 1,
+            "experience": 2,
+            "projects": 3,
+            "tech": 4, // Assuming TechStack id is 'tech'
+            "contact": 5
+        };
+
+        // Fallback for sections not in map or if activeSection is null
+        const activeIndex = sectionMap[activeSection] ?? 0;
+        
+        return letterIndex === activeIndex ? "text-accent" : "text-primary/80";
+    };
+
+    const logoLetters = ["S", "o", "l", "a", "n", "o"];
+
     return (
         <>
             {/* Desktop Nav */}
             <nav
+                ref={navRef}
                 className={`fixed top-5 left-5 right-5 z-100 rounded-2xl flex items-center justify-center transition-all duration-500 ${scrolled
                     ? "glass border-border py-4"
                     : "bg-transparent border border-transparent py-5"
@@ -93,11 +161,17 @@ export default function Navbar() {
                             const lenis = (window as any).__lenis;
                             lenis?.scrollTo(0, { duration: 1.2 });
                         }}
-                        className="font-display font-bold text-xl tracking-tight cursor-pointer"
+                        className="font-display font-bold text-xl tracking-tight cursor-pointer flex gap-px"
                         data-cursor="magnetic"
                     >
-                        <span className="text-accent">S</span>
-                        <span className="text-primary/80">olano</span>
+                        {logoLetters.map((letter, i) => (
+                            <span 
+                                key={i} 
+                                className={`transition-colors duration-500 ${getLogoLetterClass(i, activeSection)}`}
+                            >
+                                {letter}
+                            </span>
+                        ))}
                     </a>
 
                     {/* Desktop Links */}
@@ -122,7 +196,7 @@ export default function Navbar() {
                             className="ml-2 px-6 py-2.5 rounded-lg text-sm font-mono border border-accent/30 text-accent hover:bg-accent/10 transition-all duration-300 cursor-pointer"
                             data-cursor="magnetic"
                         >
-                            Résumé
+                            CV
                         </a>
                     </div>
 

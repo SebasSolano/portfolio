@@ -25,7 +25,7 @@ const EXPERIENCES: ExperienceItem[] = [
         tags: ["Scrum", "CRM", "Deployment Automation", "Full Stack"],
     },
     {
-        date: "Feb 2024 — May 2024",
+        date: "Feb 2024 — Present",
         title: "Systems Engineer",
         company: "Mayor's Office of Montería",
         description: [

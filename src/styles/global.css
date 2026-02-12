@@ -110,13 +110,7 @@
 /* ═══════════════════════════════════════════════════════════
    BASE STYLES
    ═══════════════════════════════════════════════════════════ */
-*,
-*::before,
-*::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Reset is handled by Tailwind preflight */
 
 html {
     background-color: var(--color-bg);
@@ -125,6 +119,7 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: auto;
+    cursor: none !important;
 }
 
 body {

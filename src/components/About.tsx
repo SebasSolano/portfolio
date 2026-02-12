@@ -104,6 +104,13 @@ export default function About() {
         return () => ctx.revert();
     }, []);
 
+    const stats = [
+        { value: "2+", label: "Years of Experience", icon: "⏱" },
+        { value: "14+", label: "Technologies Mastered", icon: "⚡" },
+        { value: "3", label: "Awards & Recognitions", icon: "🏆" },
+        { value: "∞", label: "Lines of Code & Counting", icon: "💻" },
+    ];
+
     return (
         <section
             ref={sectionRef}
@@ -113,7 +120,7 @@ export default function About() {
             {/* Divider */}
             <div className="section-divider mb-20 md:mb-28" />
 
-            <div className="max-w-7xl mx-auto">
+            <div className="w-full">
                 {/* Section Label */}
                 <div ref={labelRef} className="flex items-center gap-4 mb-16 opacity-0">
                     <span className="font-mono text-xs text-accent tracking-widest uppercase">
@@ -125,9 +132,9 @@ export default function About() {
                     </span>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-                    {/* Text Column */}
-                    <div className="lg:col-span-7">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+                    {/* Text Column - Asymmetric Layout */}
+                    <div className="lg:col-span-6 xl:col-span-5">
                         <h2
                             ref={headingRef}
                             className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] mb-10 opacity-0"
@@ -147,9 +154,7 @@ export default function About() {
                                 <span className="text-primary font-medium">
                                     Systems Engineer
                                 </span>{" "}
-                                from{" "}
-                                <span className="text-accent">Universidad del Sinú</span>{" "}
-                                (Dec 2024), based in Montería, Colombia. I specialize in
+                                — I specialize in
                                 full-stack development and process automation, merging
                                 technical depth with creative problem-solving.
                             </p>
@@ -172,23 +177,69 @@ export default function About() {
                         </div>
                     </div>
 
-                    {/* Stats Column */}
+                    {/* Stats Column - Puzzle Layout */}
                     <div
                         ref={statsRef}
-                        className="lg:col-span-5 flex flex-col gap-5 lg:pt-24"
+                        className="lg:col-span-6 xl:col-span-7 relative min-h-125 hidden lg:block"
                     >
-                        {[
-                            { value: "2+", label: "Years of Experience", icon: "⏱" },
-                            { value: "14+", label: "Technologies Mastered", icon: "⚡" },
-                            { value: "3", label: "Awards & Recognitions", icon: "🏆" },
-                            { value: "∞", label: "Lines of Code & Counting", icon: "💻" },
-                        ].map((stat) => (
+                        {/* Stat 1: Top Left */}
+                        <div className="stat-item absolute top-0 left-0 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                            <div className="flex flex-col gap-2">
+                                <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
+                                    {stats[0].value}
+                                </div>
+                                <div className="font-mono text-[11px] text-muted/70 tracking-wide uppercase leading-tight">
+                                    {stats[0].label}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stat 2: Top Right (Higher) */}
+                        <div className="stat-item absolute -top-12 right-10 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                            <div className="flex flex-col gap-2">
+                                <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
+                                    {stats[1].value}
+                                </div>
+                                <div className="font-mono text-[11px] text-muted/70 tracking-wide uppercase leading-tight">
+                                    {stats[1].label}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stat 3: Bottom Left (Shifted Left) */}
+                        <div className="stat-item absolute bottom-20 -left-12 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                            <div className="flex flex-col gap-2">
+                                <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
+                                    {stats[2].value}
+                                </div>
+                                <div className="font-mono text-[11px] text-muted/70 tracking-wide uppercase leading-tight">
+                                    {stats[2].label}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stat 4: Bottom Center */}
+                        <div className="stat-item absolute bottom-0 left-1/2 -translate-x-1/2 w-64 glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group hover:-translate-y-2">
+                            <div className="flex flex-col gap-2">
+                                <div className="font-display text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
+                                    {stats[3].value}
+                                </div>
+                                <div className="font-mono text-[11px] text-muted/70 tracking-wide uppercase leading-tight">
+                                    {stats[3].label}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Mobile/Tablet Fallback for Stats */}
+                    <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-5">
+                         {stats.map((stat) => (
                             <div
                                 key={stat.label}
                                 className="stat-item glass rounded-2xl p-6 glass-hover transition-all duration-500 opacity-0 cursor-pointer group"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="font-display text-4xl md:text-5xl font-bold text-accent group-hover:glow-text transition-all duration-300">
+                                    <div className="font-display text-4xl font-bold text-accent group-hover:glow-text transition-all duration-300">
                                         {stat.value}
                                     </div>
                                     <div className="font-mono text-[11px] text-muted/70 tracking-wide uppercase leading-tight">

@@ -541,7 +541,7 @@ export default function Projects() {
             >
                 <div className="section-divider mb-20 md:mb-28" />
 
-                <div className="max-w-7xl mx-auto">
+                <div className="w-full">
                     {/* Section Label */}
                     <div className="flex items-center gap-4 mb-8">
                         <span className="font-mono text-xs text-accent tracking-widest uppercase">

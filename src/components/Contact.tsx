@@ -55,8 +55,8 @@ export default function Contact() {
                         scrollTrigger: {
                             trigger: sectionRef.current,
                             start: "top 70%",
-                            end: "top 10%",
-                            toggleActions: "play reverse play reverse",
+                            end: "bottom 0%", // Adjusted to keep visible longer
+                            toggleActions: "play none none reverse", // Changed to not reverse immediately
                         },
                     }
                 );
@@ -86,7 +86,7 @@ export default function Contact() {
         >
             <div className="section-divider mb-20 md:mb-28" />
 
-            <div className="max-w-5xl mx-auto">
+            <div className="w-full">
                 {/* Section Label */}
                 <div className="flex items-center gap-4 mb-8 contact-reveal opacity-0">
                     <span className="font-mono text-xs text-accent tracking-widest uppercase">
@@ -98,154 +98,153 @@ export default function Contact() {
                     </span>
                 </div>
 
-                <h2
-                    ref={headingRef}
-                    className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-8 opacity-0 leading-[1.1]"
-                >
-                    Let's build
-                    <br />
-                    <span className="text-gradient">something together.</span>
-                </h2>
-
-                <p className="contact-reveal text-muted text-lg mb-16 max-w-xl opacity-0">
-                    Have a project in mind or just want to chat? I'm always open to
-                    discussing new opportunities and ideas.
-                </p>
-
-                {/* Contact Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                    {/* Form */}
-                    <form
-                        onSubmit={handleSubmit}
-                        className="space-y-8 contact-reveal opacity-0"
-                    >
-                        <div>
-                            <label
-                                htmlFor="name"
-                                className="block font-mono text-xs text-muted mb-3 uppercase tracking-wider"
-                            >
-                                Name
-                            </label>
-                            <input
-                                id="name"
-                                type="text"
-                                value={formState.name}
-                                onChange={(e) =>
-                                    setFormState({ ...formState, name: e.target.value })
-                                }
-                                className="w-full bg-transparent border-b border-border py-5 text-primary text-lg font-sans placeholder:text-muted/20 focus:border-accent focus:outline-none transition-colors duration-300"
-                                placeholder="Your name"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="block font-mono text-xs text-muted mb-3 uppercase tracking-wider"
-                            >
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                value={formState.email}
-                                onChange={(e) =>
-                                    setFormState({ ...formState, email: e.target.value })
-                                }
-                                className="w-full bg-transparent border-b border-border py-5 text-primary text-lg font-sans placeholder:text-muted/20 focus:border-accent focus:outline-none transition-colors duration-300"
-                                placeholder="your@email.com"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="message"
-                                className="block font-mono text-xs text-muted mb-3 uppercase tracking-wider"
-                            >
-                                Message
-                            </label>
-                            <textarea
-                                id="message"
-                                value={formState.message}
-                                onChange={(e) =>
-                                    setFormState({ ...formState, message: e.target.value })
-                                }
-                                rows={4}
-                                className="w-full bg-transparent border-b border-border py-5 text-primary text-lg font-sans placeholder:text-muted/20 focus:border-accent focus:outline-none transition-colors duration-300 resize-none"
-                                placeholder="Tell me about your project..."
-                                required
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="group relative mt-8 px-12 py-6 rounded-2xl bg-accent/10 border border-accent/30 text-accent font-mono text-sm overflow-hidden transition-all duration-300 hover:bg-accent/20 hover:glow-accent-sm cursor-pointer"
-                            data-cursor="magnetic"
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+                    <div className="lg:col-span-6 xl:col-span-5">
+                        <h2
+                            ref={headingRef}
+                            className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-8 opacity-0 leading-[1.1]"
                         >
-                            <span className="relative z-10">Send Message →</span>
-                            <div className="absolute inset-0 bg-accent/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                        </button>
-                    </form>
+                            Let's build
+                            <br />
+                            <span className="text-gradient">something together.</span>
+                        </h2>
 
-                    {/* Direct Links */}
-                    <div className="flex flex-col justify-center gap-10 contact-reveal opacity-0">
-                        <div>
-                            <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-3">
-                                Email
-                            </span>
-                            <a
-                                href="mailto:sebaxsolanom@gmail.com"
-                                className="magnetic font-display text-xl md:text-2xl font-semibold hover:text-accent transition-colors duration-300 cursor-pointer"
-                                data-cursor="magnetic"
-                            >
-                                sebaxsolanom@gmail.com
-                            </a>
+                        <p className="contact-reveal text-muted text-lg mb-16 max-w-xl opacity-0">
+                            Have a project in mind or just want to chat? I'm always open to
+                            discussing new opportunities and ideas.
+                        </p>
+                        
+                         {/* Direct Links (Moved here for asymmetry) */}
+                         <div className="flex flex-col gap-8 contact-reveal opacity-0 mb-12">
+                            <div>
+                                <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-2">
+                                    Email
+                                </span>
+                                <a
+                                    href="mailto:sebaxsolanom@gmail.com"
+                                    className="magnetic font-display text-xl md:text-2xl font-semibold hover:text-accent transition-colors duration-300 cursor-pointer inline-block"
+                                    data-cursor="magnetic"
+                                >
+                                    sebaxsolanom@gmail.com
+                                </a>
+                            </div>
+
+                            <div>
+                                <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-2">
+                                    Phone
+                                </span>
+                                <a
+                                    href="tel:+573137874304"
+                                    className="magnetic font-display text-xl md:text-2xl font-semibold hover:text-accent transition-colors duration-300 cursor-pointer inline-block"
+                                    data-cursor="magnetic"
+                                >
+                                    +57 313 787 4304
+                                </a>
+                            </div>
                         </div>
+                    </div>
 
-                        <div>
-                            <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-3">
-                                Phone
-                            </span>
-                            <a
-                                href="tel:+573137874304"
-                                className="magnetic font-display text-xl md:text-2xl font-semibold hover:text-accent transition-colors duration-300 cursor-pointer"
-                                data-cursor="magnetic"
-                            >
-                                +57 313 787 4304
-                            </a>
-                        </div>
-
-                        <div>
-                            <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-3">
-                                Location
-                            </span>
-                            <p className="font-display text-xl md:text-2xl font-semibold text-muted">
-                                Montería, Colombia
-                            </p>
-                        </div>
-
-                        {/* Achievements */}
-                        <div className="glass rounded-2xl p-6">
-                            <span className="font-mono text-xs text-accent uppercase tracking-wider block mb-4">
-                                Achievements
-                            </span>
-                            <ul className="space-y-3">
-                                {[
-                                    "Hackathon Montería (2019)",
-                                    "RedCOLSI Recognition (2019)",
-                                    "RedCOLSI Recognition (2022)",
-                                ].map((achievement) => (
-                                    <li
-                                        key={achievement}
-                                        className="flex items-center gap-3 text-sm text-primary/60"
+                    {/* Form Column */}
+                    <div className="lg:col-span-6 xl:col-span-7">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="space-y-8 contact-reveal opacity-0 bg-white/5 p-8 rounded-3xl border border-white/10"
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label
+                                        htmlFor="name"
+                                        className="block font-mono text-xs text-muted mb-3 uppercase tracking-wider"
                                     >
-                                        <span className="w-2 h-2 rounded-full bg-accent/50 shrink-0" />
-                                        {achievement}
-                                    </li>
-                                ))}
-                            </ul>
+                                        Name
+                                    </label>
+                                    <input
+                                        id="name"
+                                        type="text"
+                                        value={formState.name}
+                                        onChange={(e) =>
+                                            setFormState({ ...formState, name: e.target.value })
+                                        }
+                                        className="w-full bg-transparent border-b border-border py-4 text-primary text-lg font-sans placeholder:text-muted/20 focus:border-accent focus:outline-none transition-colors duration-300"
+                                        placeholder="Your name"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label
+                                        htmlFor="email"
+                                        className="block font-mono text-xs text-muted mb-3 uppercase tracking-wider"
+                                    >
+                                        Email
+                                    </label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        value={formState.email}
+                                        onChange={(e) =>
+                                            setFormState({ ...formState, email: e.target.value })
+                                        }
+                                        className="w-full bg-transparent border-b border-border py-4 text-primary text-lg font-sans placeholder:text-muted/20 focus:border-accent focus:outline-none transition-colors duration-300"
+                                        placeholder="your@email.com"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="message"
+                                    className="block font-mono text-xs text-muted mb-3 uppercase tracking-wider"
+                                >
+                                    Message
+                                </label>
+                                <textarea
+                                    id="message"
+                                    value={formState.message}
+                                    onChange={(e) =>
+                                        setFormState({ ...formState, message: e.target.value })
+                                    }
+                                    rows={4}
+                                    className="w-full bg-transparent border-b border-border py-4 text-primary text-lg font-sans placeholder:text-muted/20 focus:border-accent focus:outline-none transition-colors duration-300 resize-none"
+                                    placeholder="Tell me about your project..."
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex justify-end">
+                                <button
+                                    type="submit"
+                                    className="group relative px-12 py-6 rounded-2xl bg-accent text-bg font-mono text-sm font-bold overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_-10px_rgba(125,91,166,0.6)] cursor-pointer"
+                                    data-cursor="magnetic"
+                                >
+                                    <span className="relative z-10">Send Message →</span>
+                                </button>
+                            </div>
+                        </form>
+                         
+                         {/* Achievements - Below Form or Beside */}
+                         <div className="mt-12 contact-reveal opacity-0">
+                             <div className="glass rounded-2xl p-6 inline-block">
+                                <span className="font-mono text-xs text-accent uppercase tracking-wider block mb-4">
+                                    Achievements
+                                </span>
+                                <ul className="space-y-3">
+                                    {[
+                                        "Hackathon Montería (2019)",
+                                        "RedCOLSI Recognition (2019)",
+                                        "RedCOLSI Recognition (2022)",
+                                    ].map((achievement) => (
+                                        <li
+                                            key={achievement}
+                                            className="flex items-center gap-3 text-sm text-primary/60"
+                                        >
+                                            <span className="w-2 h-2 rounded-full bg-accent/50 shrink-0" />
+                                            {achievement}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
