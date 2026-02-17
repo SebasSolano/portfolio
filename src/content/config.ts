@@ -9,6 +9,7 @@ const projectsCollection = defineCollection({
     schema: z.object({
         title: z.string(),
         description: z.string(),
+        longDescription: z.string().optional(),
         date: z.string(),
         client: z.string(),
         tags: z.array(z.string()),
@@ -21,9 +22,17 @@ const projectsCollection = defineCollection({
                 })
             )
             .optional(),
+        image: z.string().optional(), // Main preview image
         demoUrl: z.string().url().optional(),
         repoUrl: z.string().url().optional(),
-        featured: z.boolean().default(false),
+        isFeatured: z.boolean().default(false),
+        influenceScore: z.number().default(0),
+        primaryColor: z.string(),
+        secondaryColor: z.string(),
+        type: z.enum(['livestock', 'government', 'tech', 'design']),
+        colors: z.record(z.string(), z.any()).optional(), // Flexible color object
+        banner: z.string().optional(),
+        gallery: z.array(z.string()).optional(),
     }),
 });
 

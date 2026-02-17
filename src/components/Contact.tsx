@@ -179,7 +179,7 @@ export default function Contact() {
           <div className="lg:col-span-6 xl:col-span-5">
             <h2
               ref={headingRef}
-              className="relative font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-8 opacity-0 leading-[1.1] z-20 text-center lg:text-left origin-center will-change-transform min-h-[3em] lg:min-h-[auto] flex items-center justify-center lg:justify-start"
+              className="relative font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-8 opacity-0 leading-[1.1] z-20 text-center lg:text-left origin-center will-change-transform min-h-[3em] lg:min-h-auto flex items-center justify-center lg:justify-start"
             >
               <div ref={initialTextRef} className="relative z-10">
                 Let's build
@@ -189,9 +189,9 @@ export default function Contact() {
               
               <div 
                 ref={finalTextRef} 
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center opacity-0 z-20 pointer-events-none"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 min-w-full h-40 text-center opacity-0 z-20 pointer-events-none"
               >
-                <span className="text-gradient block text-4xl sm:text-5xl md:text-7xl lg:text-8xl tracking-tight">
+                <span className="text-gradient block text-4xl sm:text-5xl md:text-7xl lg:text-8xl tracking-tight h-full">
                   A Legacy.
                 </span>
               </div>

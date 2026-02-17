@@ -1,0 +1,54 @@
+{
+    "title": "GradeGain",
+    "description": "The best platform to improve through tasks and notes rewards. Built with modern Vue ecosystem and Firebase.",
+    "longDescription": "GradeGain is a comprehensive platform designed to incentivize improvement through task management and note rewards. Utilizing a robust tech stack including Vue 3, Ant Design, and Firebase, it delivers a seamless user experience. The system features real-time analytics, automated workflows, and a secure, scalable architecture. Special attention was given to geometric 3D design elements to enhance user engagement.",
+    "date": "2025",
+    "client": "GradeGain",
+    "tags": [
+        "Vue 3",
+        "Ant Design",
+        "Firebase",
+        "Pinia",
+        "TailwindCSS",
+        "Vite"
+    ],
+    "image": "/projects/gradegain-preview.png",
+    "demoUrl": "https://gradegain-client-gradegains-projects.vercel.app/",
+    "isFeatured": false,
+    "influenceScore": 90,
+    "primaryColor": "#57FE1E",
+    "secondaryColor": "#333333",
+    "type": "tech",
+    "colors": {
+        "neutral": {
+            "light": "#ede8cd",
+            "DEFAULT": "#E8E8E8",
+            "dark": "#595959"
+        },
+        "green": {
+            "DEFAULT": "#57FE1E",
+            "soft": "#AEDB9F",
+            "hover": "#9dec82"
+        },
+        "blue": {
+            "DEFAULT": "#CAFAE1",
+            "hover": "#c1e8fc"
+        },
+        "danger": {
+            "DEFAULT": "#fb7185",
+            "hover": "#f43f5e"
+        },
+        "warning": {
+            "DEFAULT": "#fcd34d",
+            "hover": "#fbbf24"
+        }
+    },
+    "banner": "/projects/gradegain-banner.png",
+    "gallery": [
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2370&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2370&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=2370&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2370&auto=format&fit=crop"
+    ]
+}

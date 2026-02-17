@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/global.css";
+import { getCollection } from "astro:content";
 
 // React components (client:load for immediate, client:visible for lazy)
 import Navbar from "../components/Navbar";
@@ -12,6 +13,19 @@ import Projects from "../components/Projects";
 import TechStack from "../components/TechStack";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
+import FloatingBouncingShape from "../components/FloatingBouncingShape";
+
+// Fetch projects
+const projectsCollection = await getCollection("projects");
+const projects = projectsCollection.map((project) => ({
+    ...project.data,
+    // Ensure all required fields are present if optional in schema but required in component
+    longDescription: project.data.longDescription || project.data.description,
+    image: project.data.image || (project.data.media?.[0]?.src ?? ""),
+}));
+
+console.log("Projects loaded:", projects.length);
+projects.forEach(p => console.log(p.title));
 ---
 
 <Layout>
@@ -22,24 +36,29 @@ import Footer from "../components/Footer";
     <Navbar client:load />
 
     <!-- Main Content -->
-    <main class="w-full">
+    <main class="w-full relative">
         <!-- Hero Section -->
         <Hero client:load />
 
-        <!-- About Section -->
-        <About client:visible />
+        <div class="relative w-full overflow-hidden">
+            <!-- Background 3D Shape -->
+            <FloatingBouncingShape client:load className="h-full w-full" />
 
-        <!-- Experience Timeline -->
-        <Experience client:visible />
+            <!-- About Section -->
+            <About client:visible />
 
-        <!-- Projects Showcase -->
-        <Projects client:visible />
+            <!-- Experience Timeline -->
+            <Experience client:visible />
 
-        <!-- Tech Stack Marquee -->
-        <TechStack client:visible />
+            <!-- Projects Showcase -->
+            <Projects client:visible projects={projects} />
 
-        <!-- Contact Form -->
-        <Contact client:visible />
+            <!-- Tech Stack Marquee -->
+            <TechStack client:visible />
+
+            <!-- Contact Form -->
+            <Contact client:visible />
+        </div>
     </main>
 
     <!-- Footer -->

@@ -1,6 +1,7 @@
 {
     "title": "Administrative Process Optimizer",
     "description": "Software solution designed for the Mayor's Office of Montería to streamline administrative workflows, digitize paper-based processes, and provide real-time operational dashboards for government departments.",
+    "longDescription": "Software solution designed for the Mayor's Office of Montería to streamline administrative workflows, digitize paper-based processes, and provide real-time operational dashboards for government departments. The system reduced processing time by automating form submissions and approval chains, while maintaining strict security protocols required by government institutions.",
     "date": "2024",
     "client": "Mayor's Office of Montería",
     "tags": [
@@ -9,12 +10,10 @@
         "Oracle",
         "Government"
     ],
-    "media": [
-        {
-            "type": "image",
-            "src": "/projects/admin-system.png",
-            "alt": "Administrative workflow dashboard"
-        }
-    ],
-    "featured": true
+    "image": "/projects/admin-preview.svg",
+    "isFeatured": false,
+    "influenceScore": 88,
+    "primaryColor": "#5BA67D",
+    "secondaryColor": "#C3FCE0",
+    "type": "government"
 }

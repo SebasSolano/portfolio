@@ -1,68 +1,305 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useTexture } from "@react-three/drei";
+import * as THREE from "three";
+import { Suspense } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Project {
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+
+// --- TYPES ---
+
+export type ProjectType = 'livestock' | 'government' | 'tech' | 'design';
+
+export interface Project {
     title: string;
     description: string;
-    longDescription: string;
+    longDescription?: string;
     date: string;
     client: string;
     tags: string[];
     image: string;
     demoUrl?: string;
     repoUrl?: string;
-    color: string;
+    // New properties
+    isFeatured: boolean;
+    influenceScore: number;
+    primaryColor: string;
+    secondaryColor: string;
+    type: ProjectType;
+    colors?: Record<string, any>;
+    banner?: string;
+    gallery?: string[];
 }
 
-const PROJECTS: Project[] = [
-    {
-        title: "Cattle Industry CRM",
-        description:
-            "Comprehensive CRM platform for the cattle industry with herd management, financial tracking, and real-time analytics.",
-        longDescription:
-            "A comprehensive CRM platform designed for the cattle industry, featuring herd management, financial tracking, sales pipelines, and real-time analytics dashboards. Built with automated deployment pipelines and Scrum-driven iteration cycles. The platform handles thousands of records with optimized PostgreSQL queries and a responsive React frontend that works seamlessly across desktop and mobile devices.",
-        date: "2025",
-        client: "OddiSoluciones",
-        tags: ["Django", "React", "PostgreSQL", "Docker", "Scrum"],
-        image: "/projects/crm-preview.svg",
-        demoUrl: "#",
-        repoUrl: "#",
-        color: "125, 91, 166",
-    },
-    {
-        title: "Admin Process Optimizer",
-        description:
-            "Government software solution to streamline administrative workflows and digitize paper-based processes.",
-        longDescription:
-            "Software solution designed for the Mayor's Office of Montería to streamline administrative workflows, digitize paper-based processes, and provide real-time operational dashboards for government departments. The system reduced processing time by automating form submissions and approval chains, while maintaining strict security protocols required by government institutions.",
-        date: "2024",
-        client: "Mayor's Office of Montería",
-        tags: ["Laravel", "Vue.js", "Oracle", "Government"],
-        image: "/projects/admin-preview.svg",
-        demoUrl: "#",
-        color: "91, 166, 125",
-    },
-    {
-        title: "Portfolio Engine",
-        description:
-            "High-performance portfolio featuring custom cursor physics, 3D particles, and GSAP-powered scroll animations.",
-        longDescription:
-            "A high-performance portfolio system built with Astro, React, and Three.js featuring custom cursor physics with lerp smoothing, GSAP-powered scroll animations with persistent triggers, smooth scrolling via Lenis, and an interactive 3D particle system that reacts to mouse movement. Every animation is crafted to feel cinematic and immersive.",
-        date: "2025",
-        client: "Personal",
-        tags: ["Astro", "React", "Three.js", "GSAP", "TailwindCSS"],
-        image: "/projects/portfolio-preview.svg",
-        repoUrl: "#",
-        color: "166, 125, 91",
-    },
-];
+// --- UTILS ---
 
 /**
- * ProjectModal — Full-screen immersive modal with cinematic transitions.
- * Morphs from the clicked card position to a full-screen overlay.
+ * Validates and ensures sufficient contrast between two colors (WCAG 2.1 AA).
+ */
+function checkContrast(color1: string, color2: string): boolean {
+    const getLuminance = (hex: string) => {
+        const rgb = parseInt(hex.slice(1), 16);
+        const r = ((rgb >> 16) & 0xff) / 255;
+        const g = ((rgb >> 8) & 0xff) / 255;
+        const b = (rgb & 0xff) / 255;
+        
+        const a = [r, g, b].map(v => 
+            v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+        );
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    };
+
+    const l1 = getLuminance(color1);
+    const l2 = getLuminance(color2);
+    const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    
+    // WCAG AA for large text requires 3:1, normal text 4.5:1. 
+    // We enforce a baseline of 3:1 for decorative elements.
+    if (ratio < 3) {
+        console.warn(`Low contrast ratio (${ratio.toFixed(2)}) between ${color1} and ${color2}`);
+        return false;
+    }
+    return true;
+}
+
+// --- HOOKS ---
+
+/**
+ * Custom ScrollLock hook that prevents background scrolling
+ * while maintaining the current scroll position.
+ */
+function useScrollLock(isOpen: boolean) {
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const scrollY = window.scrollY;
+        const body = document.body;
+
+        // 1. Save position and lock
+        body.style.position = 'fixed';
+        body.style.top = `-${scrollY}px`;
+        body.style.width = '100%';
+        body.style.overflowY = 'hidden';
+
+        // 2. Prevent wheel/touch events
+        const preventDefault = (e: Event) => e.preventDefault();
+        window.addEventListener('wheel', preventDefault, { passive: false });
+        window.addEventListener('touchmove', preventDefault, { passive: false });
+
+        return () => {
+            // 3. Restore
+            body.style.position = '';
+            body.style.top = '';
+            body.style.width = '';
+            body.style.overflowY = '';
+            window.removeEventListener('wheel', preventDefault);
+            window.removeEventListener('touchmove', preventDefault);
+            window.scrollTo(0, scrollY);
+        };
+    }, [isOpen]);
+}
+
+// --- SUB-COMPONENTS ---
+
+/**
+ * 3D Logo Component using R3F
+ * Rotates on hover.
+ */
+function ThreeLogo({ color }: { color: string }) {
+    const meshRef = useRef<THREE.Mesh>(null);
+    const [hovered, setHover] = useState(false);
+
+    useFrame((state, delta) => {
+        if (meshRef.current) {
+            meshRef.current.rotation.x += delta * 0.5;
+            meshRef.current.rotation.y += delta * (hovered ? 2 : 0.5);
+        }
+    });
+
+    return (
+        <mesh
+            ref={meshRef}
+            onPointerOver={() => setHover(true)}
+            onPointerOut={() => setHover(false)}
+            scale={hovered ? 1.2 : 1}
+        >
+            <icosahedronGeometry args={[1, 0]} />
+            <meshStandardMaterial color={color} wireframe />
+        </mesh>
+    );
+}
+
+/**
+ * Grass Animation Plugin (Livestock)
+ * Uses SVG and GSAP for realistic sway.
+ */
+const GrassPlugin = memo(() => {
+    const grassRef = useRef<SVGSVGElement>(null);
+
+    useEffect(() => {
+        if (!grassRef.current) return;
+        const blades = grassRef.current.querySelectorAll('.grass-blade');
+        
+        blades.forEach((blade, i) => {
+            gsap.to(blade, {
+                rotate: "random(-10, 10)",
+                transformOrigin: "bottom center",
+                duration: "random(1.5, 3)",
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: i * 0.1
+            });
+        });
+    }, []);
+
+    return (
+        <div className="w-full h-24 absolute bottom-0 left-0 overflow-hidden pointer-events-none z-10">
+            <svg ref={grassRef} viewBox="0 0 100 20" preserveAspectRatio="none" className="w-full h-full">
+                {Array.from({ length: 20 }).map((_, i) => (
+                    <path
+                        key={i}
+                        className="grass-blade"
+                        d={`M${i * 5 + 2},20 Q${i * 5 + 4},10 ${i * 5 + 2 + (Math.random() * 4 - 2)},0`}
+                        stroke="#4ade80"
+                        strokeWidth="1"
+                        fill="none"
+                    />
+                ))}
+            </svg>
+        </div>
+    );
+});
+
+/**
+ * Tech Plugin (Government/Tech)
+ * Geometric 3D elements placeholder
+ */
+const TechPlugin = memo(({ colors }: { colors?: Record<string, any> }) => {
+    return (
+        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none">
+             <Canvas camera={{ position: [0, 0, 5] }}>
+                <ambientLight intensity={0.8} />
+                <pointLight position={[10, 10, 10]} intensity={1.5} />
+                <Suspense fallback={null}>
+                    <GradeGainScene colors={colors} />
+                </Suspense>
+             </Canvas>
+        </div>
+    );
+});
+
+function GradeGainScene({ colors }: { colors?: Record<string, any> }) {
+    const texture = useTexture('/projects/gradegain-logo-white.png');
+    const groupRef = useRef<THREE.Group>(null);
+
+    useFrame((state) => {
+        if(groupRef.current) {
+             groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.3;
+        }
+    });
+
+    const palette = colors ? [
+        colors.green?.DEFAULT || "#57FE1E",
+        colors.blue?.DEFAULT || "#CAFAE1",
+        colors.danger?.DEFAULT || "#fb7185",
+        colors.warning?.DEFAULT || "#fcd34d",
+        colors.neutral?.DEFAULT || "#E8E8E8"
+    ] : ["white"];
+
+    return (
+        <group ref={groupRef}>
+            {/* Center Logo */}
+            <mesh position={[0, 0, 0]}>
+                <planeGeometry args={[3, 3]} />
+                <meshBasicMaterial 
+                    map={texture} 
+                    transparent 
+                    opacity={1} 
+                    side={THREE.DoubleSide}
+                    depthWrite={false}
+                />
+            </mesh>
+
+            {/* Floating Shapes */}
+            {[...Array(8)].map((_, i) => {
+                const color = palette[i % palette.length];
+                const position: [number, number, number] = [
+                    (Math.random() - 0.5) * 6,
+                    (Math.random() - 0.5) * 6,
+                    (Math.random() - 0.5) * 2 - 1
+                ];
+                
+                return (
+                    <FloatingMesh key={i} position={position} color={color} index={i} />
+                );
+            })}
+        </group>
+    );
+}
+
+function FloatingMesh({ position, color, index }: { position: [number, number, number], color: string, index: number }) {
+    const meshRef = useRef<THREE.Mesh>(null);
+    
+    useFrame((state) => {
+        if (meshRef.current) {
+            meshRef.current.rotation.x += 0.01 * (index % 2 === 0 ? 1 : -1);
+            meshRef.current.rotation.y += 0.015 * (index % 3 === 0 ? 1 : -1);
+            meshRef.current.position.y += Math.sin(state.clock.elapsedTime + index) * 0.005;
+        }
+    });
+
+    // Random geometry type
+    const geometry = useMemo(() => {
+        const type = index % 3;
+        if (type === 0) return <boxGeometry args={[0.4, 0.4, 0.4]} />;
+        if (type === 1) return <tetrahedronGeometry args={[0.4]} />;
+        return <octahedronGeometry args={[0.3]} />;
+    }, [index]);
+
+    return (
+        <mesh ref={meshRef} position={position}>
+            {geometry}
+            <meshStandardMaterial 
+                color={color} 
+                wireframe={index % 2 === 0} 
+                transparent 
+                opacity={0.3} 
+                depthWrite={false}
+            />
+        </mesh>
+    );
+}
+
+
+/**
+ * Design Plugin (Design)
+ * Abstract geometric shapes using CSS
+ */
+const DesignPlugin = memo(() => {
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full border border-current animate-[spin_10s_linear_infinite]" />
+            <div className="absolute top-20 right-20 w-20 h-20 border border-current rotate-45 animate-[pulse_3s_ease-in-out_infinite]" />
+        </div>
+    );
+});
+
+const PLUGINS: Record<ProjectType, React.FC<any> | null> = {
+    livestock: GrassPlugin,
+    government: TechPlugin,
+    tech: TechPlugin,
+    design: DesignPlugin
+};
+
+// --- MODAL ---
+
+/**
+ * ProjectModal — Redesigned with 2 columns, magic book scroll, and plugins.
  */
 function ProjectModal({
     project,
@@ -75,27 +312,59 @@ function ProjectModal({
     onClose: () => void;
     originRect: DOMRect | null;
 }) {
+    useScrollLock(isOpen);
+
     const overlayRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
-    const innerRef = useRef<HTMLDivElement>(null);
+    const leftColRef = useRef<HTMLDivElement>(null);
+    const rightColRef = useRef<HTMLDivElement>(null);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+    // Ensure contrast
+    useEffect(() => {
+        if (project) {
+            checkContrast(project.primaryColor, project.secondaryColor);
+            // Set dynamic CSS variables
+            document.documentElement.style.setProperty('--project-primary', project.primaryColor);
+            document.documentElement.style.setProperty('--project-secondary', project.secondaryColor);
+            setCurrentImageIndex(0);
+        }
+    }, [project]);
+
+    // Magic Book Scroll Effect
+    const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.currentTarget;
+        const scrollProgress = target.scrollTop / (target.scrollHeight - target.clientHeight);
+        
+        if (rightColRef.current) {
+            // Parallax / Book effect
+            gsap.to(rightColRef.current, {
+                rotationY: -5 + (scrollProgress * 10), // -5 to 5 deg
+                perspective: 1000,
+                ease: "power1.out",
+                duration: 0.5
+            });
+        }
+    }, []);
+
+    // Enter/Exit Animations
     useEffect(() => {
         if (!isOpen || !project || !overlayRef.current || !contentRef.current) return;
 
         const lenis = (window as any).__lenis;
         lenis?.stop();
 
-        // Animate open
         const tl = gsap.timeline();
 
+        // 1. Overlay
         tl.to(overlayRef.current, {
-            backgroundColor: "rgba(5,5,5,0.92)",
+            backgroundColor: "rgba(5,5,5,0.95)",
             backdropFilter: "blur(30px)",
             duration: 0.4,
             ease: "power2.out",
         });
 
-        // Morph from card origin
+        // 2. Modal expansion
         if (originRect) {
             gsap.set(contentRef.current, {
                 position: "fixed",
@@ -107,32 +376,22 @@ function ProjectModal({
                 opacity: 1,
             });
 
-            tl.to(
-                contentRef.current,
-                {
-                    top: "5vh",
-                    left: "5vw",
-                    width: "90vw",
-                    height: "90vh",
-                    borderRadius: "1.5rem",
-                    duration: 0.6,
-                    ease: "power3.inOut",
-                },
-                "-=0.2"
-            );
+            tl.to(contentRef.current, {
+                top: "2.5vh",
+                left: "2.5vw",
+                width: "95vw",
+                height: "95vh",
+                borderRadius: "1.5rem",
+                duration: 0.6,
+                ease: "power3.inOut",
+            }, "-=0.2");
         }
 
-        // Reveal inner content
+        // 3. Content Reveal
         tl.fromTo(
-            innerRef.current?.querySelectorAll(".modal-reveal") ?? [],
-            { y: 40, opacity: 0 },
-            {
-                y: 0,
-                opacity: 1,
-                stagger: 0.08,
-                duration: 0.5,
-                ease: "power2.out",
-            },
+            [leftColRef.current, rightColRef.current],
+            { y: 50, opacity: 0 },
+            { y: 0, opacity: 1, stagger: 0.1, duration: 0.5, ease: "power2.out" },
             "-=0.2"
         );
 
@@ -155,170 +414,248 @@ function ProjectModal({
             },
         });
 
-        tl.to(innerRef.current?.querySelectorAll(".modal-reveal") ?? [], {
-            y: -20,
-            opacity: 0,
-            stagger: 0.04,
-            duration: 0.3,
-            ease: "power2.in",
+        tl.to([leftColRef.current, rightColRef.current], {
+            y: 20, opacity: 0, duration: 0.3
         });
 
         if (originRect) {
-            tl.to(
-                contentRef.current,
-                {
-                    top: originRect.top,
-                    left: originRect.left,
-                    width: originRect.width,
-                    height: originRect.height,
-                    borderRadius: "1rem",
-                    duration: 0.5,
-                    ease: "power3.inOut",
-                },
-                "-=0.1"
-            );
+            tl.to(contentRef.current, {
+                top: originRect.top,
+                left: originRect.left,
+                width: originRect.width,
+                height: originRect.height,
+                borderRadius: "1rem",
+                duration: 0.5,
+                ease: "power3.inOut",
+            }, "-=0.2");
         }
 
-        tl.to(
-            overlayRef.current,
-            {
-                backgroundColor: "rgba(5,5,5,0)",
-                backdropFilter: "blur(0px)",
-                duration: 0.3,
-                ease: "power2.in",
-            },
-            "-=0.2"
-        );
+        tl.to(overlayRef.current, {
+            backgroundColor: "rgba(0,0,0,0)",
+            backdropFilter: "blur(0px)",
+            duration: 0.3
+        }, "-=0.2");
+
     }, [onClose, originRect]);
 
     if (!project) return null;
 
+    const PluginComponent = PLUGINS[project.type];
+    
+    // Gallery Logic
+    const images = project.gallery && project.gallery.length > 0 ? project.gallery : [project.image];
+    const nextImage = () => setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    const prevImage = () => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+
     return (
         <>
-            {/* Overlay */}
             <div
                 ref={overlayRef}
                 onClick={handleClose}
-                className="fixed inset-0 z-200 cursor-pointer"
-                style={{
-                    backgroundColor: "rgba(5,5,5,0)",
-                    backdropFilter: "blur(0px)",
-                    pointerEvents: isOpen ? "all" : "none",
-                }}
+                className="fixed inset-0 z-[200] cursor-pointer"
+                style={{ backgroundColor: "rgba(0,0,0,0)", pointerEvents: isOpen ? "all" : "none" }}
             />
 
-            {/* Modal Content */}
             <div
                 ref={contentRef}
-                className="fixed z-210 overflow-hidden"
-                style={{
-                    background: `linear-gradient(135deg, rgba(${project.color}, 0.08) 0%, rgba(5,5,5,0.98) 50%)`,
-                    border: `1px solid rgba(${project.color}, 0.15)`,
-                    opacity: isOpen ? 1 : 0,
-                    pointerEvents: isOpen ? "all" : "none",
-                }}
+                className="fixed z-[210] overflow-hidden bg-[#0a0a0a] border border-white/10 shadow-2xl"
+                style={{ opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? "all" : "none" }}
             >
-                <div
-                    ref={innerRef}
-                    className="h-full overflow-y-auto p-8 md:p-12 lg:p-16"
-                    data-lenis-prevent
+                <div 
+                    className="flex flex-col lg:flex-row h-full w-full"
+                    onScroll={handleScroll}
                 >
-                    {/* Close Button */}
-                    <button
-                        onClick={handleClose}
-                        className="modal-reveal fixed top-8 right-8 z-220 w-12 h-12 rounded-full glass flex items-center justify-center cursor-pointer hover:border-accent/40 transition-all duration-300 group"
-                        aria-label="Close project"
+                    {/* Left Column (40%) - Dev Content */}
+                    <div 
+                        ref={leftColRef}
+                        className="w-full lg:w-[40%] h-full p-8 lg:p-12 overflow-y-auto relative border-r border-white/5"
                     >
-                        <svg
-                            className="w-5 h-5 text-muted group-hover:text-accent transition-colors"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.5}
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
-                        </svg>
-                    </button>
+                        {/* Header: Banner or 3D Logo */}
+                        {project.banner ? (
+                            <div className="h-32 w-full mb-8 rounded-xl relative z-10 overflow-hidden shadow-lg border border-white/10">
+                                <img src={project.banner} alt={`${project.title} Banner`} className="w-full h-full object-cover" />
+                            </div>
+                        ) : (
+                            <div className="h-32 w-full mb-8 flex items-center justify-center bg-white/5 rounded-xl relative z-10">
+                                 <Canvas>
+                                    <ambientLight intensity={0.5} />
+                                    <pointLight position={[10, 10, 10]} />
+                                    <ThreeLogo color={project.primaryColor} />
+                                 </Canvas>
+                            </div>
+                        )}
 
-                    {/* Project Header */}
-                    <div className="max-w-4xl mx-auto pt-4">
-                        <div className="modal-reveal mb-4">
-                            <span className="font-mono text-xs tracking-widest uppercase" style={{ color: `rgba(${project.color}, 0.7)` }}>
-                                {project.client} · {project.date}
-                            </span>
-                        </div>
-
-                        <h2 className="modal-reveal font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.05]">
-                            {project.title}
-                        </h2>
-
-                        {/* Decorative line */}
-                        <div
-                            className="modal-reveal w-20 h-px mb-8"
-                            style={{ background: `rgba(${project.color}, 0.4)` }}
-                        />
-
-                        <p className="modal-reveal text-primary/70 text-lg md:text-xl leading-relaxed mb-10 max-w-3xl">
-                            {project.longDescription}
-                        </p>
-
-                        {/* Tech Tags */}
-                        <div className="modal-reveal flex flex-wrap gap-3 mb-12">
-                            {project.tags.map((tag) => (
-                                <span
-                                    key={tag}
-                                    className="px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider border text-primary/60"
-                                    style={{
-                                        borderColor: `rgba(${project.color}, 0.2)`,
-                                        background: `rgba(${project.color}, 0.05)`,
-                                    }}
+                        {/* Content Container with Blur for Contrast */}
+                        <div className="relative z-10 bg-black/60 backdrop-blur-xs p-6 rounded-2xl border border-white/5 shadow-xl">
+                            <div className="mb-4">
+                                <span 
+                                    className="font-mono text-xs tracking-widest uppercase px-2 py-1 rounded"
+                                    style={{ backgroundColor: `${project.primaryColor}20`, color: project.primaryColor }}
                                 >
-                                    {tag}
+                                    {project.client}
                                 </span>
-                            ))}
-                        </div>
+                            </div>
 
-                        {/* Preview Area */}
-                        <div
-                            className="modal-reveal w-full aspect-video rounded-2xl mb-10 overflow-hidden"
-                            style={{
-                                background: `linear-gradient(135deg, rgba(${project.color}, 0.12) 0%, rgba(5,5,5,0.6) 100%)`,
-                                border: `1px solid rgba(${project.color}, 0.1)`,
-                            }}
-                        >
-                            <div className="w-full h-full flex items-center justify-center">
-                                <span className="font-mono text-sm text-muted/30">
-                                    Project Preview
-                                </span>
+                            <h2 className="font-display text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                                {project.title}
+                            </h2>
+
+                            <p className="text-white/80 text-lg leading-relaxed mb-8">
+                                {project.longDescription}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-10">
+                                {project.tags.map(tag => (
+                                    <span key={tag} className="px-3 py-1 rounded-full text-xs font-mono border border-white/10 text-white/60">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-4">
+                                {project.demoUrl && (
+                                    <a 
+                                        href={project.demoUrl} 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm font-mono text-white"
+                                    >
+                                        Live Demo
+                                    </a>
+                                )}
+                                {project.repoUrl && (
+                                    <a 
+                                        href={project.repoUrl} 
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-6 py-3 rounded-lg border border-white/10 hover:border-white/30 transition text-sm font-mono text-white"
+                                    >
+                                        Code
+                                    </a>
+                                )}
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="modal-reveal flex gap-4 pb-8">
-                            {project.demoUrl && (
-                                <a
-                                    href={project.demoUrl}
-                                    className="px-8 py-4 rounded-xl font-mono text-sm font-medium transition-all duration-300 cursor-pointer"
-                                    style={{
-                                        background: `rgba(${project.color}, 0.15)`,
-                                        border: `1px solid rgba(${project.color}, 0.3)`,
-                                        color: `rgb(${project.color})`,
-                                    }}
-                                >
-                                    Live Demo →
-                                </a>
+                        {/* Plugin Area (e.g. Grass or Tech 3D) */}
+                        {PluginComponent && <PluginComponent colors={project.colors} />}
+                    </div>
+
+                    {/* Right Column (60%) - Gallery/Image */}
+                    <div 
+                        ref={rightColRef}
+                        className="w-full lg:w-[60%] h-full relative overflow-hidden bg-black/50"
+                        style={{ transformStyle: "preserve-3d" }}
+                    >
+                         {/* Close Button */}
+                        <button
+                            onClick={handleClose}
+                            className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center hover:bg-white/10 transition"
+                        >
+                            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div className="w-full h-full flex items-center justify-center relative perspective-container">
+                            {/* Horizontal Scroll Gallery */}
+                            <div 
+                                className="w-full h-full flex items-center overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-8 px-[10%] py-12"
+                                onScroll={(e) => {
+                                    const target = e.currentTarget;
+                                    const progress = target.scrollLeft / (target.scrollWidth - target.clientWidth);
+                                    
+                                    // Update progress bar
+                                    const progressBar = document.getElementById('gallery-progress');
+                                    if(progressBar) progressBar.style.width = `${progress * 100}%`;
+
+                                    // Rotate images based on center position
+                                    const cards = target.querySelectorAll('.gallery-card');
+                                    const centerX = target.getBoundingClientRect().width / 2;
+                                    
+                                    cards.forEach((card) => {
+                                        const rect = card.getBoundingClientRect();
+                                        const cardCenter = rect.left + rect.width / 2;
+                                        const dist = (cardCenter - centerX) / (target.clientWidth / 2);
+                                        // Clamp rotation between -15 and 15
+                                        const rotation = Math.max(-15, Math.min(15, dist * 15));
+                                        
+                                        gsap.to(card, {
+                                            rotationY: rotation,
+                                            scale: 1 - Math.abs(dist) * 0.1,
+                                            duration: 0.5,
+                                            ease: "power2.out"
+                                        });
+                                    });
+                                }}
+                            >
+                                {images.map((img, i) => (
+                                    <div 
+                                        key={i}
+                                        className="gallery-card flex-shrink-0 w-[85%] md:w-[70%] aspect-video relative snap-center cursor-pointer group"
+                                        style={{ perspective: "1000px" }}
+                                        onClick={() => {
+                                            // Page flip effect on click
+                                            const card = document.getElementById(`card-${i}`);
+                                            if(card) {
+                                                gsap.to(card, {
+                                                    rotationY: 180,
+                                                    duration: 0.6,
+                                                    ease: "back.inOut(1.7)",
+                                                    yoyo: true,
+                                                    repeat: 1
+                                                });
+                                            }
+                                        }}
+                                        id={`card-${i}`}
+                                    >
+                                        <div 
+                                            className="w-full h-full rounded-xl overflow-hidden shadow-2xl transition-all duration-500 transform-style-3d bg-[#1a1a1a]"
+                                            style={{ 
+                                                boxShadow: `0 20px 50px -12px ${project.primaryColor}40`
+                                            }}
+                                        >
+                                            <img 
+                                                src={img} 
+                                                alt={`${project.title} gallery ${i + 1}`}
+                                                className="w-full h-full object-cover backface-hidden"
+                                                loading="lazy"
+                                            />
+                                            {/* Back of the card (for flip effect) */}
+                                            <div 
+                                                className="absolute inset-0 bg-black/90 flex items-center justify-center backface-hidden"
+                                                style={{ transform: "rotateY(180deg)" }}
+                                            >
+                                                <span className="font-mono text-white/50 text-sm">
+                                                    {project.title} • {i + 1}/{images.length}
+                                                </span>
+                                            </div>
+
+                                            {/* Overlay Gradient */}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                                            
+                                            {/* Reflection/Shine effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Progress Indicator */}
+                            {images.length > 1 && (
+                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/10 rounded-full overflow-hidden">
+                                    <div 
+                                        id="gallery-progress"
+                                        className="h-full bg-white transition-all duration-300 ease-out"
+                                        style={{ width: '0%', backgroundColor: project.primaryColor }}
+                                    />
+                                </div>
                             )}
-                            {project.repoUrl && (
-                                <a
-                                    href={project.repoUrl}
-                                    className="px-8 py-4 rounded-xl border border-border text-primary/70 font-mono text-sm hover:border-accent/30 transition-all duration-300 cursor-pointer"
-                                >
-                                    Source Code →
-                                </a>
+                            
+                            {/* Scroll Hint */}
+                            {images.length > 1 && (
+                                <div className="absolute bottom-12 right-8 animate-pulse hidden md:block">
+                                    <IoIosArrowForward className="text-white/30 text-2xl" />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -328,9 +665,8 @@ function ProjectModal({
     );
 }
 
-/**
- * ProjectCard — Immersive card that morphs into full-screen modal on click.
- */
+// --- PROJECT CARD ---
+
 function ProjectCard({
     project,
     index,
@@ -377,90 +713,75 @@ function ProjectCard({
     return (
         <div
             ref={cardRef}
-            className="group relative opacity-0 cursor-pointer"
+            className={`group relative opacity-0 cursor-pointer ${project.isFeatured ? 'lg:col-span-2' : ''}`}
             onClick={handleClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             data-cursor="magnetic"
         >
             <div
-                className="rounded-2xl overflow-hidden transition-all duration-700 border border-border hover:border-transparent flex flex-col h-full"
+                className="rounded-2xl overflow-hidden transition-all duration-700 border border-white/10 hover:border-white/20 flex flex-col h-full relative"
                 style={{
                     background: isHovered
-                        ? `linear-gradient(135deg, rgba(${project.color}, 0.06) 0%, rgba(5,5,5,0.95) 70%)`
+                        ? `linear-gradient(135deg, ${project.primaryColor}10 0%, #050505 70%)`
                         : "rgba(255,255,255,0.02)",
                     boxShadow: isHovered
-                        ? `0 0 60px rgba(${project.color}, 0.08), 0 0 120px rgba(${project.color}, 0.04)`
+                        ? `0 0 60px ${project.primaryColor}15`
                         : "none",
+                    borderColor: isHovered ? `${project.primaryColor}40` : 'rgba(255,255,255,0.1)',
                 }}
             >
+                {/* Featured Badge */}
+                {project.isFeatured && (
+                    <div className="absolute top-4 right-4 z-20 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full">
+                        <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest">Featured</span>
+                    </div>
+                )}
+
                 {/* Preview Area */}
-                <div className="relative aspect-16/10 overflow-hidden">
+                <div className={`relative ${project.isFeatured ? 'aspect-21/9' : 'aspect-16/10'} overflow-hidden`}>
                     <div
-                        className={`absolute inset-0 bg-linear-to-br transition-transform duration-700 ${isHovered ? "scale-110" : "scale-100"
-                            }`}
+                        className={`absolute inset-0 transition-transform duration-700 ${isHovered ? "scale-110" : "scale-100"}`}
                         style={{
-                            background: `linear-gradient(135deg, rgba(${project.color}, 0.12) 0%, rgba(5,5,5,0.8) 100%)`,
+                            background: `linear-gradient(135deg, ${project.primaryColor}20 0%, #050505 100%)`,
                         }}
                     />
+                    
+                    {/* Placeholder for image if not loading real one */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-30">
+                         <span className="font-mono text-sm text-white/20">Project Preview</span>
+                    </div>
 
                     {/* Number */}
                     <div className="absolute top-6 left-6 font-display text-7xl md:text-8xl font-bold leading-none opacity-[0.04]">
                         {String(index + 1).padStart(2, "0")}
                     </div>
-
-                    {/* Open indicator */}
-                    <div
-                        className={`absolute bottom-6 right-6 flex items-center gap-2 font-mono text-xs tracking-wider uppercase transition-all duration-500 ${isHovered
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 translate-y-2"
-                            }`}
-                        style={{ color: `rgba(${project.color}, 0.8)` }}
-                    >
-                        <span>Open Project</span>
-                        <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.5}
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"
-                            />
-                        </svg>
-                    </div>
                 </div>
 
-                {/* Card Content */}
-                <div className="p-10 md:p-14 flex flex-col grow gap-7">
-                    <div className="flex items-center justify-between mb-4">
-                        <span
-                            className="font-mono text-[11px] uppercase tracking-widest"
-                            style={{ color: `rgba(${project.color}, 0.5)` }}
-                        >
+                {/* Content */}
+                <div className="p-8 md:p-10 flex flex-col grow gap-6">
+                    <div className="flex items-center justify-between">
+                        <span className="font-mono text-[11px] uppercase tracking-widest text-white/40">
                             {project.client} · {project.date}
                         </span>
                     </div>
 
-                    <h3 className="font-display text-2xl md:text-3xl font-bold mb-4 group-hover:text-accent transition-colors duration-500">
+                    <h3 className="font-display text-2xl md:text-3xl font-bold group-hover:text-white transition-colors duration-500 text-white/90">
                         {project.title}
                     </h3>
 
-                    <p className="text-primary/40 text-sm leading-relaxed mb-6">
+                    <p className="text-white/40 text-sm leading-relaxed">
                         {project.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mt-auto">
                         {project.tags.map((tag) => (
                             <span
                                 key={tag}
-                                className="px-5 py-2 rounded-full text-[11px] font-mono uppercase tracking-wider border text-primary/40"
+                                className="px-4 py-1.5 rounded-full text-[10px] font-mono uppercase tracking-wider border border-white/10 text-white/40"
                                 style={{
-                                    borderColor: `rgba(${project.color}, 0.25)`,
-                                    background: `rgba(${project.color}, 0.05)`,
+                                    borderColor: isHovered ? `${project.primaryColor}40` : 'rgba(255,255,255,0.1)',
+                                    color: isHovered ? `${project.primaryColor}` : 'rgba(255,255,255,0.4)'
                                 }}
                             >
                                 {tag}
@@ -473,15 +794,19 @@ function ProjectCard({
     );
 }
 
-/**
- * Projects — Grid layout with immersive modal on click.
- */
-export default function Projects() {
+// --- MAIN COMPONENT ---
+
+export default function Projects({ projects }: { projects: Project[] }) {
     const sectionRef = useRef<HTMLElement>(null);
     const headingRef = useRef<HTMLHeadingElement>(null);
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [originRect, setOriginRect] = useState<DOMRect | null>(null);
+
+    // Sort projects by influence score
+    const sortedProjects = useMemo(() => {
+        return [...projects].sort((a, b) => b.influenceScore - a.influenceScore);
+    }, [projects]);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -507,30 +832,19 @@ export default function Projects() {
         return () => ctx.revert();
     }, []);
 
-    const handleProjectSelect = (project: Project, rect: DOMRect) => {
+    const handleProjectSelect = useCallback((project: Project, rect: DOMRect) => {
         setSelectedProject(project);
         setOriginRect(rect);
         setModalOpen(true);
-    };
+    }, []);
 
-    const handleModalClose = () => {
+    const handleModalClose = useCallback(() => {
         setModalOpen(false);
         setTimeout(() => {
             setSelectedProject(null);
             setOriginRect(null);
         }, 600);
-    };
-
-    // Close modal on Escape
-    useEffect(() => {
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && modalOpen) {
-                handleModalClose();
-            }
-        };
-        window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
-    }, [modalOpen]);
+    }, []);
 
     return (
         <>
@@ -561,8 +875,8 @@ export default function Projects() {
                     </h2>
 
                     {/* Projects Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-                        {PROJECTS.map((project, index) => (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                        {sortedProjects.map((project, index) => (
                             <ProjectCard
                                 key={project.title}
                                 project={project}
