@@ -14,8 +14,8 @@
     "image": "/projects/crm-preview.svg",
     "demoUrl": "https://example.com",
     "repoUrl": "https://example.com",
-    "isFeatured": true,
-    "influenceScore": 95,
+    "isFeatured": false,
+    "influenceScore": 90,
     "primaryColor": "#7D5BA6",
     "secondaryColor": "#E0C3FC",
     "type": "livestock"

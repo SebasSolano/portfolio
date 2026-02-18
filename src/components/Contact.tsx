@@ -201,35 +201,6 @@ export default function Contact() {
               Have a project in mind or just want to chat? I'm always open to
               discussing new opportunities and ideas.
             </p>
-
-            {/* Direct Links (Moved here for asymmetry) */}
-            <div className="flex flex-col gap-8 contact-reveal opacity-0 mb-12">
-              <div>
-                <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-2">
-                  Email
-                </span>
-                <a
-                  href="mailto:sebaxsolanom@gmail.com"
-                  className="magnetic font-display text-xl md:text-2xl font-semibold hover:text-accent transition-colors duration-300 cursor-pointer inline-block"
-                  data-cursor="magnetic"
-                >
-                  sebaxsolanom@gmail.com
-                </a>
-              </div>
-
-              <div>
-                <span className="font-mono text-xs text-muted uppercase tracking-wider block mb-2">
-                  Phone
-                </span>
-                <a
-                  href="tel:+573137874304"
-                  className="magnetic font-display text-xl md:text-2xl font-semibold hover:text-accent transition-colors duration-300 cursor-pointer inline-block"
-                  data-cursor="magnetic"
-                >
-                  +57 313 787 4304
-                </a>
-              </div>
-            </div>
           </div>
 
           {/* Form Column */}
@@ -310,30 +281,6 @@ export default function Contact() {
                 </button>
               </div>
             </form>
-
-            {/* Achievements - Below Form or Beside */}
-            <div className="mt-12 contact-reveal opacity-0">
-              <div className="glass rounded-2xl p-6 inline-block">
-                <span className="font-mono text-xs text-accent uppercase tracking-wider block mb-4">
-                  Achievements
-                </span>
-                <ul className="space-y-3">
-                  {[
-                    "Hackathon Montería (2019)",
-                    "RedCOLSI Recognition (2019)",
-                    "RedCOLSI Recognition (2022)",
-                  ].map((achievement) => (
-                    <li
-                      key={achievement}
-                      className="flex items-center gap-3 text-sm text-primary/60"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-accent/50 shrink-0" />
-                      {achievement}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
           </div>
         </div>
       </div>

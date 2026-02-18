@@ -13,8 +13,8 @@
     ],
     "image": "/projects/portfolio-preview.svg",
     "repoUrl": "https://example.com",
-    "isFeatured": true,
-    "influenceScore": 92,
+    "isFeatured": false,
+    "influenceScore": 80,
     "primaryColor": "#A67D5B",
     "secondaryColor": "#FCE0C3",
     "type": "design"

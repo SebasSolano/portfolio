@@ -29,10 +29,13 @@ const projectsCollection = defineCollection({
         influenceScore: z.number().default(0),
         primaryColor: z.string(),
         secondaryColor: z.string(),
-        type: z.enum(['livestock', 'government', 'tech', 'design']),
+        type: z.enum(['livestock', 'government', 'tech', 'design', 'datagan']),
         colors: z.record(z.string(), z.any()).optional(), // Flexible color object
         banner: z.string().optional(),
+        logo: z.string().optional(),
         gallery: z.array(z.string()).optional(),
+        farmerImage: z.string().optional(),
+        grassImage: z.string().optional(),
     }),
 });
 

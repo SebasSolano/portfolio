@@ -1,0 +1,48 @@
+{
+    "title": "Datagran",
+    "description": "Comprehensive technological platform for efficient livestock farm management.",
+    "longDescription": "Datagran is a comprehensive technological platform designed for the efficient management and administration of livestock farms, with a strong focus on dairy and animal inventory control. Its main purpose is to digitalize daily field operations, allowing producers to move from manual paper records to a centralized cloud-based system.",
+    "date": "2026",
+    "client": "Datagran",
+    "tags": [
+        "Nuxt 3",
+        "TypeScript",
+        "TailwindCSS",
+        "Pinia",
+        "Firebase",
+        "Chart.js",
+        "D3",
+        "Unovis"
+    ],
+    "image": "/projects/datagan/image5.png",
+    "demoUrl": "https://datagan.co",
+    "isFeatured": true,
+    "influenceScore": 100,
+    "primaryColor": "#2e8040",
+    "secondaryColor": "#262626",
+    "type": "datagan",
+    "colors": {
+        "neutral": {
+            "light": "#ffffff",
+            "DEFAULT": "#f5f5f5",
+            "dark": "#262626"
+        },
+        "green": {
+            "DEFAULT": "#2e8040",
+            "soft": "#4ade80",
+            "hover": "#166534"
+        }
+    },
+    "banner": "/projects/datagan/banner.webp",
+    "logo": "/projects/datagan/logo.webp",
+    "gallery": [
+        "/projects/datagan/image0.png",
+        "/projects/datagan/image1.png",
+        "/projects/datagan/image2.png",
+        "/projects/datagan/image3.png",
+        "/projects/datagan/image4.png",
+        "/projects/datagan/image5.png"
+    ],
+    "farmerImage": "/projects/datagan/farmer.webp",
+    "grassImage": "/projects/datagan/grass.svg"
+}

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useTexture, Image } from "@react-three/drei";
 import * as THREE from "three";
 import { Suspense } from "react";
 
@@ -12,7 +12,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
 // --- TYPES ---
 
-export type ProjectType = 'livestock' | 'government' | 'tech' | 'design';
+export type ProjectType = 'livestock' | 'government' | 'tech' | 'design' | 'datagan';
 
 export interface Project {
     title: string;
@@ -32,7 +32,10 @@ export interface Project {
     type: ProjectType;
     colors?: Record<string, any>;
     banner?: string;
+    logo?: string;
     gallery?: string[];
+    farmerImage?: string;
+    grassImage?: string;
 }
 
 // --- UTILS ---
@@ -85,25 +88,37 @@ function useScrollLock(isOpen: boolean) {
         body.style.width = '100%';
         body.style.overflowY = 'hidden';
 
-        // 2. Prevent wheel/touch events
-        const preventDefault = (e: Event) => e.preventDefault();
-        window.addEventListener('wheel', preventDefault, { passive: false });
-        window.addEventListener('touchmove', preventDefault, { passive: false });
-
         return () => {
-            // 3. Restore
+            // 2. Restore
             body.style.position = '';
             body.style.top = '';
             body.style.width = '';
             body.style.overflowY = '';
-            window.removeEventListener('wheel', preventDefault);
-            window.removeEventListener('touchmove', preventDefault);
             window.scrollTo(0, scrollY);
         };
     }, [isOpen]);
 }
 
 // --- SUB-COMPONENTS ---
+
+/**
+ * 3D Banner Component
+ */
+function ThreeBanner({ image }: { image: string }) {
+    const { viewport } = useThree();
+    
+    // Use Drei's Image component which handles aspect ratio nicely
+    // If it's too big, we can try to adjust scale or just accept it's "cover"
+    return (
+        <Image 
+            url={image}
+            scale={[viewport.width * 0.8, viewport.height * 0.8]} // Reduced scale to prevent cutting off
+            position={[0, 0, 0]}
+            transparent
+            zoom={1} // Prevent excessive zoom if possible
+        />
+    );
+}
 
 /**
  * 3D Logo Component using R3F
@@ -194,15 +209,25 @@ const TechPlugin = memo(({ colors }: { colors?: Record<string, any> }) => {
 });
 
 function GradeGainScene({ colors }: { colors?: Record<string, any> }) {
-    const texture = useTexture('/projects/gradegain-logo-white.png');
-    const groupRef = useRef<THREE.Group>(null);
+    // Center Logo Removed as requested
+    // const texture = useTexture('/projects/gradegain/logo-white.png'); // Updated path
+    // const groupRef = useRef<THREE.Group>(null);
 
-    useFrame((state) => {
-        if(groupRef.current) {
-             groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.3;
-        }
-    });
+    // useFrame((state) => {
+    //    if(groupRef.current) {
+    //         groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.3;
+    //    }
+    // });
 
+    return (
+        <group>
+            {/* Floating Shapes */}
+            <FloatingShapes colors={colors} />
+        </group>
+    );
+}
+
+function FloatingShapes({ colors }: { colors?: Record<string, any> }) {
     const palette = colors ? [
         colors.green?.DEFAULT || "#57FE1E",
         colors.blue?.DEFAULT || "#CAFAE1",
@@ -212,20 +237,7 @@ function GradeGainScene({ colors }: { colors?: Record<string, any> }) {
     ] : ["white"];
 
     return (
-        <group ref={groupRef}>
-            {/* Center Logo */}
-            <mesh position={[0, 0, 0]}>
-                <planeGeometry args={[3, 3]} />
-                <meshBasicMaterial 
-                    map={texture} 
-                    transparent 
-                    opacity={1} 
-                    side={THREE.DoubleSide}
-                    depthWrite={false}
-                />
-            </mesh>
-
-            {/* Floating Shapes */}
+        <>
             {[...Array(8)].map((_, i) => {
                 const color = palette[i % palette.length];
                 const position: [number, number, number] = [
@@ -238,9 +250,84 @@ function GradeGainScene({ colors }: { colors?: Record<string, any> }) {
                     <FloatingMesh key={i} position={position} color={color} index={i} />
                 );
             })}
-        </group>
+        </>
     );
 }
+
+/**
+ * Farmer Component (3D)
+ */
+function ThreeFarmer({ image }: { image: string }) {
+    const texture = useTexture(image);
+    const meshRef = useRef<THREE.Mesh>(null);
+    const [hovered, setHover] = useState(false);
+    const { viewport } = useThree();
+
+    useFrame((state) => {
+        if (meshRef.current) {
+            // Subtle floating animation
+            meshRef.current.position.y = -0.5 + Math.sin(state.clock.elapsedTime * 1) * 0.05; // Raised position
+            // Look at mouse slightly
+            const x = (state.mouse.x * viewport.width) / 2;
+            const y = (state.mouse.y * viewport.height) / 2;
+            meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, hovered ? -y * 0.05 : 0, 0.1); // Reduced rotation sensitivity
+            meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, hovered ? x * 0.05 : 0, 0.1);
+        }
+    });
+
+    return (
+        <mesh 
+            ref={meshRef} 
+            position={[1.7, -5, -8]} // Adjusted position
+            scale={hovered ? 1.05 : 1} // Significantly reduced hover scale
+            onPointerOver={() => setHover(true)}
+            onPointerOut={() => setHover(false)}
+        >
+            <planeGeometry args={[2.5, 2.5]} />
+            <meshBasicMaterial map={texture} transparent side={THREE.DoubleSide} />
+        </mesh>
+    );
+}
+
+/**
+ * Datagan Plugin
+ * Floating shapes removed. Farmer in 3D. Grass via CSS Mask.
+ */
+const DataganPlugin = memo(({ colors }: { colors?: Record<string, any> }) => {
+    const grassImage = "/projects/datagan/grass.svg";
+    const farmerImage = "/projects/datagan/farmer.webp";
+    const primaryColor = colors?.green?.DEFAULT || '#2e8040';
+    
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Grass at bottom - Using CSS Mask to apply primary color */}
+            <div 
+                className="absolute bottom-0 left-0 w-full h-90 z-10 translate-y-30"
+                style={{
+                    maskImage: `url(${grassImage})`,
+                    maskSize: 'cover',
+                    maskPosition: 'bottom',
+                    WebkitMaskImage: `url(${grassImage})`,
+                    WebkitMaskSize: 'cover',
+                    WebkitMaskPosition: 'bottom',
+                    backgroundColor: primaryColor,
+                    opacity: 1
+                }}
+            />
+
+            {/* 3D Farmer Scene */}
+             <div className="absolute -bottom-110 inset-0 z-9 pointer-events-auto">
+                <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                    <ambientLight intensity={1} />
+                    <pointLight position={[10, 10, 10]} intensity={1.5} />
+                    <Suspense fallback={null}>
+                        <ThreeFarmer image={farmerImage} />
+                    </Suspense>
+                </Canvas>
+             </div>
+        </div>
+    );
+});
 
 function FloatingMesh({ position, color, index }: { position: [number, number, number], color: string, index: number }) {
     const meshRef = useRef<THREE.Mesh>(null);
@@ -293,7 +380,8 @@ const PLUGINS: Record<ProjectType, React.FC<any> | null> = {
     livestock: GrassPlugin,
     government: TechPlugin,
     tech: TechPlugin,
-    design: DesignPlugin
+    design: DesignPlugin,
+    datagan: DataganPlugin
 };
 
 // --- MODAL ---
@@ -452,13 +540,13 @@ function ProjectModal({
             <div
                 ref={overlayRef}
                 onClick={handleClose}
-                className="fixed inset-0 z-[200] cursor-pointer"
+                className="fixed inset-0 z-200 cursor-pointer"
                 style={{ backgroundColor: "rgba(0,0,0,0)", pointerEvents: isOpen ? "all" : "none" }}
             />
 
             <div
                 ref={contentRef}
-                className="fixed z-[210] overflow-hidden bg-[#0a0a0a] border border-white/10 shadow-2xl"
+                className="fixed z-210 overflow-hidden bg-[#0a0a0a] border border-white/10 shadow-2xl"
                 style={{ opacity: isOpen ? 1 : 0, pointerEvents: isOpen ? "all" : "none" }}
             >
                 <div 
@@ -470,23 +558,29 @@ function ProjectModal({
                         ref={leftColRef}
                         className="w-full lg:w-[40%] h-full p-8 lg:p-12 overflow-y-auto relative border-r border-white/5"
                     >
-                        {/* Header: Banner or 3D Logo */}
-                        {project.banner ? (
-                            <div className="h-32 w-full mb-8 rounded-xl relative z-10 overflow-hidden shadow-lg border border-white/10">
-                                <img src={project.banner} alt={`${project.title} Banner`} className="w-full h-full object-cover" />
-                            </div>
-                        ) : (
-                            <div className="h-32 w-full mb-8 flex items-center justify-center bg-white/5 rounded-xl relative z-10">
-                                 <Canvas>
-                                    <ambientLight intensity={0.5} />
-                                    <pointLight position={[10, 10, 10]} />
-                                    <ThreeLogo color={project.primaryColor} />
-                                 </Canvas>
-                            </div>
-                        )}
+                        {/* Header: Banner or Logo */}
+                        <div className="h-48 w-full mb-8 rounded-xl relative z-10 overflow-hidden shadow-lg border border-white/10 bg-white/5 flex items-center justify-center p-6">
+                            {project.banner ? (
+                                <img 
+                                    src={project.banner} 
+                                    alt={`${project.title} Banner`} 
+                                    className="w-full h-full object-contain" 
+                                />
+                            ) : project.logo ? (
+                                 <img 
+                                    src={project.logo} 
+                                    alt={`${project.title} Logo`} 
+                                    className="h-full w-auto object-contain drop-shadow-lg" 
+                                />
+                            ) : (
+                                <div className="text-6xl font-bold opacity-20 font-display" style={{ color: project.primaryColor }}>
+                                    {project.title.charAt(0)}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Content Container with Blur for Contrast */}
-                        <div className="relative z-10 bg-black/60 backdrop-blur-xs p-6 rounded-2xl border border-white/5 shadow-xl">
+                        <div className="relative z-10 p-6 overflow-hidden">
                             <div className="mb-4">
                                 <span 
                                     className="font-mono text-xs tracking-widest uppercase px-2 py-1 rounded"
@@ -500,13 +594,13 @@ function ProjectModal({
                                 {project.title}
                             </h2>
 
-                            <p className="text-white/80 text-lg leading-relaxed mb-8">
+                            <p className="text-white text-lg leading-relaxed mb-8">
                                 {project.longDescription}
                             </p>
 
                             <div className="flex flex-wrap gap-2 mb-10">
                                 {project.tags.map(tag => (
-                                    <span key={tag} className="px-3 py-1 rounded-full text-xs font-mono border border-white/10 text-white/60">
+                                    <span key={tag} className="px-3 py-1 rounded-full bg-black/80 text-xs font-mono border border-white/10 text-white/80">
                                         {tag}
                                     </span>
                                 ))}
@@ -534,6 +628,8 @@ function ProjectModal({
                                     </a>
                                 )}
                             </div>
+
+                            {/* Datagan Custom Decoration - Removed as now handled by DataganPlugin */}
                         </div>
 
                         {/* Plugin Area (e.g. Grass or Tech 3D) */}
@@ -559,7 +655,23 @@ function ProjectModal({
                         <div className="w-full h-full flex items-center justify-center relative perspective-container">
                             {/* Horizontal Scroll Gallery */}
                             <div 
-                                className="w-full h-full flex items-center overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-8 px-[10%] py-12"
+                                ref={(el) => {
+                                    if (el) {
+                                        // Add wheel event listener for horizontal scrolling
+                                        const onWheel = (e: WheelEvent) => {
+                                            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                                                e.preventDefault();
+                                                el.scrollLeft += e.deltaY;
+                                            }
+                                        };
+                                        el.addEventListener('wheel', onWheel, { passive: false });
+                                        // Store cleanup function on the element if needed, or handle in useEffect
+                                        // For simplicity in this callback ref pattern, we might leak if not careful, 
+                                        // but since the component mounts/unmounts with modal, it's acceptable or we can use useEffect with useRef.
+                                        // Better approach: Use a proper useRef and useEffect for the listener.
+                                    }
+                                }}
+                                className="w-full h-full flex items-center overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-0 px-0" // Removed padding/gap to fill space
                                 onScroll={(e) => {
                                     const target = e.currentTarget;
                                     const progress = target.scrollLeft / (target.scrollWidth - target.clientWidth);
@@ -591,7 +703,7 @@ function ProjectModal({
                                 {images.map((img, i) => (
                                     <div 
                                         key={i}
-                                        className="gallery-card flex-shrink-0 w-[85%] md:w-[70%] aspect-video relative snap-center cursor-pointer group"
+                                        className="gallery-card shrink-0 w-full h-full relative snap-center cursor-pointer group flex items-center justify-center p-0"
                                         style={{ perspective: "1000px" }}
                                         onClick={() => {
                                             // Page flip effect on click
@@ -617,7 +729,8 @@ function ProjectModal({
                                             <img 
                                                 src={img} 
                                                 alt={`${project.title} gallery ${i + 1}`}
-                                                className="w-full h-full object-cover backface-hidden"
+                                                className="w-full h-full object-contain bg-black/80 backface-hidden"
+                                                style={{ aspectRatio: '16/9' }}
                                                 loading="lazy"
                                             />
                                             {/* Back of the card (for flip effect) */}
@@ -631,10 +744,10 @@ function ProjectModal({
                                             </div>
 
                                             {/* Overlay Gradient */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                                            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                                             
                                             {/* Reflection/Shine effect */}
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                            <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                                         </div>
                                     </div>
                                 ))}
@@ -731,62 +844,72 @@ function ProjectCard({
                     borderColor: isHovered ? `${project.primaryColor}40` : 'rgba(255,255,255,0.1)',
                 }}
             >
-                {/* Featured Badge */}
-                {project.isFeatured && (
-                    <div className="absolute top-4 right-4 z-20 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full">
-                        <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest">Featured</span>
-                    </div>
-                )}
-
+                {/* Featured Badge - Removed from top right as it's now in preview area */}
+                
                 {/* Preview Area */}
-                <div className={`relative ${project.isFeatured ? 'aspect-21/9' : 'aspect-16/10'} overflow-hidden`}>
+                <div className={`relative ${project.isFeatured ? 'aspect-21/9' : 'aspect-square'} overflow-hidden`}>
                     <div
                         className={`absolute inset-0 transition-transform duration-700 ${isHovered ? "scale-110" : "scale-100"}`}
-                        style={{
-                            background: `linear-gradient(135deg, ${project.primaryColor}20 0%, #050505 100%)`,
-                        }}
-                    />
+                    >
+                         {/* Project Image Background */}
+                         <img 
+                            src={project.image} 
+                            alt={project.title} 
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-500"
+                         />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                    </div>
                     
-                    {/* Placeholder for image if not loading real one */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                         <span className="font-mono text-sm text-white/20">Project Preview</span>
+                    {/* Logo Overlay */}
+                    <div className="absolute top-6 right-6 z-20 w-12 h-12 md:w-16 md:h-16 opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+                         {project.logo ? (
+                             <img src={project.logo} alt={`${project.title} logo`} className="w-full h-full object-contain drop-shadow-lg" />
+                         ) : (
+                             // Fallback if no specific logo, maybe use text or just the icon
+                             <div className="w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                                 <span className="font-display font-bold text-xl text-white">{project.title.charAt(0)}</span>
+                             </div>
+                         )}
                     </div>
 
-                    {/* Number */}
-                    <div className="absolute top-6 left-6 font-display text-7xl md:text-8xl font-bold leading-none opacity-[0.04]">
-                        {String(index + 1).padStart(2, "0")}
-                    </div>
+                    {/* Featured Badge - Moved to Top Left */}
+                    {project.isFeatured && (
+                        <div className="absolute top-6 left-6 items-center z-20 px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full">
+                            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest flex items-center">Featured</span>
+                        </div>
+                    )}
                 </div>
 
-                {/* Content */}
-                <div className="p-8 md:p-10 flex flex-col grow gap-6">
+                {/* Content - Overlaying the image slightly or below */}
+                <div className="absolute bottom-0 left-0 w-full p-8 md:p-10 flex flex-col gap-4 z-20">
                     <div className="flex items-center justify-between">
-                        <span className="font-mono text-[11px] uppercase tracking-widest text-white/40">
+                        <span className="font-mono text-[11px] uppercase tracking-widest text-white/60 bg-black/40 px-2 py-1 rounded backdrop-blur-sm border border-white/10">
                             {project.client} · {project.date}
                         </span>
                     </div>
 
-                    <h3 className="font-display text-2xl md:text-3xl font-bold group-hover:text-white transition-colors duration-500 text-white/90">
+                    <h3 className="font-display text-3xl md:text-4xl font-bold text-white group-hover:text-accent transition-colors duration-500 drop-shadow-md">
                         {project.title}
                     </h3>
 
-                    <p className="text-white/40 text-sm leading-relaxed">
+                    <p className="text-white/80 text-sm leading-relaxed line-clamp-2 max-w-[90%] drop-shadow-sm">
                         {project.description}
                     </p>
 
-                    <div className="flex flex-wrap gap-2 mt-auto">
-                        {project.tags.map((tag) => (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {project.tags.slice(0, 3).map((tag) => ( // Show only top 3 tags
                             <span
                                 key={tag}
-                                className="px-4 py-1.5 rounded-full text-[10px] font-mono uppercase tracking-wider border border-white/10 text-white/40"
-                                style={{
-                                    borderColor: isHovered ? `${project.primaryColor}40` : 'rgba(255,255,255,0.1)',
-                                    color: isHovered ? `${project.primaryColor}` : 'rgba(255,255,255,0.4)'
-                                }}
+                                className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border border-white/20 text-white/70 bg-black/30 backdrop-blur-sm"
                             >
                                 {tag}
                             </span>
                         ))}
+                        {project.tags.length > 3 && (
+                             <span className="px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider border border-white/20 text-white/70 bg-black/30 backdrop-blur-sm">
+                                +{project.tags.length - 3}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>
